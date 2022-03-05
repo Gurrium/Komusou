@@ -11,7 +11,7 @@ import SwiftUI
 struct KomusouApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PlayView()
         }
     }
 }
