@@ -14,7 +14,8 @@
 		E3178D6727D379730000DB0F /* KomusouTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D6627D379730000DB0F /* KomusouTests.swift */; };
 		E3178D7127D379730000DB0F /* KomusouUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D7027D379730000DB0F /* KomusouUITests.swift */; };
 		E3178D7327D379730000DB0F /* KomusouUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D7227D379730000DB0F /* KomusouUITestsLaunchTests.swift */; };
-		E3178D8227D379CB0000DB0F /* world.scn in Resources */ = {isa = PBXBuildFile; fileRef = E3178D8127D379CB0000DB0F /* world.scn */; };
+		E3178D8427D4B8F80000DB0F /* WorldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D8327D4B8F80000DB0F /* WorldView.swift */; };
+		E3178D8627D4BB930000DB0F /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D8527D4BB930000DB0F /* art.scnassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,7 +46,8 @@
 		E3178D6C27D379730000DB0F /* KomusouUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KomusouUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3178D7027D379730000DB0F /* KomusouUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KomusouUITests.swift; sourceTree = "<group>"; };
 		E3178D7227D379730000DB0F /* KomusouUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KomusouUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		E3178D8127D379CB0000DB0F /* world.scn */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = world.scn; sourceTree = "<group>"; };
+		E3178D8327D4B8F80000DB0F /* WorldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldView.swift; sourceTree = "<group>"; };
+		E3178D8527D4BB930000DB0F /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,7 +100,8 @@
 			children = (
 				E3178D5527D379710000DB0F /* KomusouApp.swift */,
 				E3178D5727D379710000DB0F /* PlayView.swift */,
-				E3178D8127D379CB0000DB0F /* world.scn */,
+				E3178D8327D4B8F80000DB0F /* WorldView.swift */,
+				E3178D8527D4BB930000DB0F /* art.scnassets */,
 				E3178D5927D379730000DB0F /* Assets.xcassets */,
 				E3178D5B27D379730000DB0F /* Preview Content */,
 			);
@@ -235,7 +238,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E3178D5D27D379730000DB0F /* Preview Assets.xcassets in Resources */,
-				E3178D8227D379CB0000DB0F /* world.scn in Resources */,
+				E3178D8627D4BB930000DB0F /* art.scnassets in Resources */,
 				E3178D5A27D379730000DB0F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +266,7 @@
 			files = (
 				E3178D5827D379710000DB0F /* PlayView.swift in Sources */,
 				E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */,
+				E3178D8427D4B8F80000DB0F /* WorldView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
