@@ -11,7 +11,17 @@ import SwiftUI
 struct KomusouApp: App {
     var body: some Scene {
         WindowGroup {
-            PlayView()
+            TabView {
+                PlayView()
+                    .edgesIgnoringSafeArea(.top)
+                    .tabItem {
+                        Image(systemName: "bicycle")
+                    }
+                Text("Settings")
+                    .tabItem {
+                        Image(systemName: "gearshape")
+                    }
+            }
         }
     }
 }
