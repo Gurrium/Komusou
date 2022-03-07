@@ -9,8 +9,18 @@ import SwiftUI
 
 struct PlayView: View {
     var body: some View {
-        VStack {
+        ZStack(alignment: .topTrailing) {
             WorldView()
+                .edgesIgnoringSafeArea(.all)
+            Button {
+
+            } label: {
+                Image(systemName: "gearshape")
+                    .resizable()
+                    .padding(8)
+                    .frame(width: 44, height: 44)
+                    .foregroundColor(.black)
+            }
         }
     }
 }
