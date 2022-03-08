@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct PlayView: View {
+    @State var isSettingsPresented = false
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             WorldView()
                 .edgesIgnoringSafeArea(.all)
             Button {
-
+                isSettingsPresented = true
             } label: {
                 Image(systemName: "gearshape")
                     .resizable()
@@ -21,6 +23,9 @@ struct PlayView: View {
                     .frame(width: 44, height: 44)
                     .foregroundColor(.black)
             }
+        }
+        .sheet(isPresented: $isSettingsPresented) {
+            SettingsView()
         }
     }
 }
