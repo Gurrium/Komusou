@@ -17,6 +17,7 @@
 		E3178D8427D4B8F80000DB0F /* WorldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D8327D4B8F80000DB0F /* WorldView.swift */; };
 		E3178D8627D4BB930000DB0F /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D8527D4BB930000DB0F /* art.scnassets */; };
 		E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D8A27D7753C0000DB0F /* SettingsView.swift */; };
+		E347936927D8D35E008C5829 /* TireSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E347936827D8D35E008C5829 /* TireSettingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		E3178D8327D4B8F80000DB0F /* WorldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldView.swift; sourceTree = "<group>"; };
 		E3178D8527D4BB930000DB0F /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
 		E3178D8A27D7753C0000DB0F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		E347936827D8D35E008C5829 /* TireSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TireSettingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,7 +104,7 @@
 			children = (
 				E3178D5527D379710000DB0F /* KomusouApp.swift */,
 				E3178D5727D379710000DB0F /* PlayView.swift */,
-				E3178D8A27D7753C0000DB0F /* SettingsView.swift */,
+				E347936727D8D342008C5829 /* Settings */,
 				E3178D8327D4B8F80000DB0F /* WorldView.swift */,
 				E3178D8527D4BB930000DB0F /* art.scnassets */,
 				E3178D5927D379730000DB0F /* Assets.xcassets */,
@@ -134,6 +136,15 @@
 				E3178D7227D379730000DB0F /* KomusouUITestsLaunchTests.swift */,
 			);
 			path = KomusouUITests;
+			sourceTree = "<group>";
+		};
+		E347936727D8D342008C5829 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				E3178D8A27D7753C0000DB0F /* SettingsView.swift */,
+				E347936827D8D35E008C5829 /* TireSettingView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -268,6 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E3178D5827D379710000DB0F /* PlayView.swift in Sources */,
+				E347936927D8D35E008C5829 /* TireSettingView.swift in Sources */,
 				E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */,
 				E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */,
 				E3178D8427D4B8F80000DB0F /* WorldView.swift in Sources */,
