@@ -13,6 +13,7 @@ struct TireSettingView: View {
     @State var size = ""
     
     var body: some View {
+        // TODO: いい感じにする
         List {
             Section {
                 Toggle("任意の値を使う", isOn: $isOn)
@@ -25,9 +26,9 @@ struct TireSettingView: View {
 
             if !isOn{
                 Section {
-                    ForEach(TireSize.allCases, id: \.label) { size in
+                    ForEach(StandardTireSize.allCases, id: \.label) { size in
                         Button {
-                            tireSize = size
+                            tireSize = .standard(size)
                         } label: {
                             HStack {
                                 Text(size.label)
@@ -48,14 +49,49 @@ struct TireSettingView: View {
 
 struct TireSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        TireSettingView(tireSize: .constant(.iso25_622))
+        TireSettingView(tireSize: .constant(.standard(.iso25_622)))
     }
 }
 
-enum TireSize: String, CaseIterable, Codable {
-    case iso23_622
-    case iso25_622
-    case iso28_622
+enum TireSize: Codable, RawRepresentable {
+    init?(rawValue: String) {
+        guard let d = Double(rawValue) else { return nil }
+
+        if let standardTireSize = StandardTireSize(rawValue: d) {
+            self = .standard(standardTireSize)
+        } else {
+            self = .custom(d)
+        }
+    }
+
+    var rawValue: String { label }
+
+    case standard(StandardTireSize)
+    case custom(Double)
+
+    var label: String {
+        switch self {
+        case .standard(let standardTireSize):
+            return standardTireSize.label
+        case .custom(let circumference):
+            return "\(circumference)"
+        }
+    }
+
+    var circumference: Double {
+        switch self {
+        case .standard(let standardTireSize):
+            return standardTireSize.circumference
+        case .custom(let circumference):
+            return circumference
+        }
+    }
+}
+
+enum StandardTireSize: Double, CaseIterable {
+    case iso23_622 = 2097
+    case iso25_622 = 2105
+    case iso28_622 = 2136
 
     var label: String {
         switch self {
@@ -69,13 +105,6 @@ enum TireSize: String, CaseIterable, Codable {
     }
 
     var circumference: Double {
-        switch self {
-        case .iso23_622:
-            return 2097
-        case .iso25_622:
-            return 2105
-        case .iso28_622:
-            return 2136
-        }
+        rawValue
     }
 }

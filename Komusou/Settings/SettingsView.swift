@@ -48,5 +48,5 @@ struct SettingsView_Previews: PreviewProvider {
 }
 
 final class SettingsState: ObservableObject {
-    @AppStorage("tireSize") var tireSize: TireSize = .iso25_622
+    @AppStorage("tireSize") var tireSize: TireSize = .standard(.iso25_622)
 }
