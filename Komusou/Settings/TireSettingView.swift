@@ -6,25 +6,48 @@
 //
 
 import SwiftUI
+import Combine
 
 struct TireSettingView: View {
     @Binding var tireSize: TireSize
-    @State var isOn = false
-    @State var size = ""
+    @State var isTireCustomSize: Bool
+    @State var sizeString: String
+
+    init(tireSize: Binding<TireSize>) {
+        self._tireSize = tireSize
+
+        if case .custom(let size) = tireSize.wrappedValue {
+            sizeString = "\(size)"
+        } else {
+            sizeString = ""
+        }
+
+        if case .custom = tireSize.wrappedValue {
+            isTireCustomSize = true
+        } else {
+            isTireCustomSize = false
+        }
+    }
     
     var body: some View {
         // TODO: いい感じにする
         List {
             Section {
-                Toggle("任意の値を使う", isOn: $isOn)
-                if isOn {
-                    // TODO: sanitize
-                    TextField("タイヤの直径 [mm]", text: $size)
-                        .keyboardType(.numberPad)
+                Toggle("任意の値を使う", isOn: $isTireCustomSize)
+                if isTireCustomSize {
+                    TextField("タイヤの直径 [mm]", text: $sizeString)
+                        .keyboardType(.decimalPad)
+                        .onChange(of: sizeString) { [old = sizeString] new in
+                            if let size = Double(new) {
+                                tireSize = .custom(size)
+                            } else if !new.isEmpty {
+                                sizeString = old
+                            }
+                        }
                 }
             }
 
-            if !isOn{
+            if !isTireCustomSize {
                 Section {
                     ForEach(StandardTireSize.allCases, id: \.label) { size in
                         Button {
@@ -34,7 +57,7 @@ struct TireSettingView: View {
                                 Text(size.label)
                                     .foregroundColor(.init(UIColor.label))
                                 Spacer()
-                                if tireSize == size {
+                                if tireSize == .standard(size) {
                                     Image(systemName: "checkmark")
                                         .foregroundColor(.blue)
                                 }
