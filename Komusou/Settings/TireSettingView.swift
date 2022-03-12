@@ -11,15 +11,16 @@ import Combine
 struct TireSettingView: View {
     @Binding var tireSize: TireSize
     @State var isTireCustomSize: Bool
-    @State var sizeString: String
+    @State var customTireSizeString: String
+    @FocusState var isCustomTireSizeStringFieldFocused: Bool
 
     init(tireSize: Binding<TireSize>) {
         self._tireSize = tireSize
 
         if case .custom(let size) = tireSize.wrappedValue {
-            sizeString = "\(size)"
+            customTireSizeString = "\(size)"
         } else {
-            sizeString = ""
+            customTireSizeString = ""
         }
 
         if case .custom = tireSize.wrappedValue {
@@ -30,20 +31,38 @@ struct TireSettingView: View {
     }
     
     var body: some View {
-        // TODO: いい感じにする
         List {
             Section {
                 Toggle("任意の値を使う", isOn: $isTireCustomSize)
-                if isTireCustomSize {
-                    TextField("タイヤの直径 [mm]", text: $sizeString)
-                        .keyboardType(.decimalPad)
-                        .onChange(of: sizeString) { [old = sizeString] new in
-                            if let size = Double(new) {
-                                tireSize = .custom(size)
-                            } else if !new.isEmpty {
-                                sizeString = old
-                            }
+                    .onChange(of: isTireCustomSize) { isTireCustomSize in
+                        if !isTireCustomSize {
+                            tireSize = .standard(.iso23_622)
+                            customTireSizeString = ""
                         }
+                    }
+                if isTireCustomSize {
+                    HStack {
+                        // TODO: UserDefaultsから復元すると小数点一桁まで復元されるのを修正する
+                        TextField("タイヤの直径 [mm]", text: $customTireSizeString)
+                            .keyboardType(.decimalPad)
+                            .focused($isCustomTireSizeStringFieldFocused)
+                            .onChange(of: customTireSizeString) { [old = customTireSizeString] new in
+                                if let size = Double(new),
+                                   new.count <= 6 {
+                                    tireSize = .custom(size)
+                                } else if !new.isEmpty {
+                                    customTireSizeString = old
+                                }
+                            }
+                        Button {
+                            customTireSizeString = ""
+                            isCustomTireSizeStringFieldFocused = true
+                        } label: {
+                            Image(systemName: "multiply.circle.fill")
+                                .foregroundColor(.init(UIColor.systemGray3))
+                        }
+                    }
+                    .listRowBackground(Color(UIColor.secondarySystemGroupedBackground))
                 }
             }
 
@@ -73,6 +92,11 @@ struct TireSettingView: View {
 struct TireSettingView_Previews: PreviewProvider {
     static var previews: some View {
         TireSettingView(tireSize: .constant(.standard(.iso25_622)))
+        TireSettingView(tireSize: .constant(.custom(200)))
+            .previewLayout(.fixed(width: 400.0, height: 150.0))
+            .preferredColorScheme(.dark)
+        TireSettingView(tireSize: .constant(.custom(200)))
+            .previewLayout(.fixed(width: 400.0, height: 150.0))
     }
 }
 

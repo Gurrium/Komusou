@@ -19,7 +19,7 @@ struct SettingsView: View {
                             Text("タイヤ径")
                             Spacer()
                             Text(state.tireSize.label)
-                                .foregroundColor(.init(UIColor.systemGray))
+                                .foregroundColor(.secondary)
                         }
                     }
                     // TODO:
@@ -30,11 +30,10 @@ struct SettingsView: View {
                         Text("バージョン")
                         Spacer()
                         Text("0.1")
-                            .foregroundColor(.init(UIColor.gray))
+                            .foregroundColor(.secondary)
                     }
                 }
             }
-            .tint(Color(UIColor.label))
             .listStyle(.insetGrouped)
             .navigationTitle("設定")
         }
