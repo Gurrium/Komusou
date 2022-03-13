@@ -18,7 +18,12 @@ struct TireSettingView: View {
         self._tireSize = tireSize
 
         if case .custom(let size) = tireSize.wrappedValue {
-            customTireSizeString = "\(size)"
+            var str = "\(size)"
+            if str.count > 6 {
+                str = String(str.prefix(6))
+            }
+
+            customTireSizeString = str
         } else {
             customTireSizeString = ""
         }
@@ -121,7 +126,11 @@ enum TireSize: Codable, RawRepresentable {
         case .standard(let standardTireSize):
             return standardTireSize.label
         case .custom(let circumference):
-            return "\(circumference)"
+            let formatter = NumberFormatter()
+            formatter.usesSignificantDigits = true
+            formatter.maximumSignificantDigits = 6
+
+            return formatter.string(from: circumference as NSNumber)!
         }
     }
 
