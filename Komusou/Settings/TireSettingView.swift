@@ -17,13 +17,8 @@ struct TireSettingView: View {
     init(tireSize: Binding<TireSize>) {
         self._tireSize = tireSize
 
-        if case .custom(let size) = tireSize.wrappedValue {
-            var str = "\(size)"
-            if str.count > 6 {
-                str = String(str.prefix(6))
-            }
-
-            customTireSizeString = str
+        if case .custom(let circumference) = tireSize.wrappedValue {
+            customTireSizeString = String("\(circumference)".prefix(TireSize.significantDigits))
         } else {
             customTireSizeString = ""
         }
@@ -47,13 +42,12 @@ struct TireSettingView: View {
                     }
                 if isTireCustomSize {
                     HStack {
-                        // TODO: UserDefaultsから復元すると小数点一桁まで復元されるのを修正する
                         TextField("タイヤの直径 [mm]", text: $customTireSizeString)
                             .keyboardType(.decimalPad)
                             .focused($isCustomTireSizeStringFieldFocused)
                             .onChange(of: customTireSizeString) { [old = customTireSizeString] new in
                                 if let size = Double(new),
-                                   new.count <= 6 {
+                                   new.count <= TireSize.significantDigits {
                                     tireSize = .custom(size)
                                 } else if !new.isEmpty {
                                     customTireSizeString = old
@@ -106,6 +100,8 @@ struct TireSettingView_Previews: PreviewProvider {
 }
 
 enum TireSize: Codable, RawRepresentable {
+    static let significantDigits = 6
+
     init?(rawValue: String) {
         guard let d = Double(rawValue) else { return nil }
 
@@ -126,11 +122,7 @@ enum TireSize: Codable, RawRepresentable {
         case .standard(let standardTireSize):
             return standardTireSize.label
         case .custom(let circumference):
-            let formatter = NumberFormatter()
-            formatter.usesSignificantDigits = true
-            formatter.maximumSignificantDigits = 6
-
-            return formatter.string(from: circumference as NSNumber)!
+            return String("\(circumference)".prefix(Self.significantDigits))
         }
     }
 
