@@ -18,7 +18,7 @@ struct TireSettingView: View {
         self._tireSize = tireSize
 
         if case .custom(let circumference) = tireSize.wrappedValue {
-            customTireSizeString = String("\(circumference)".prefix(TireSize.significantDigits))
+            customTireSizeString = String(circumference)
         } else {
             customTireSizeString = ""
         }
@@ -46,19 +46,26 @@ struct TireSettingView: View {
                             .keyboardType(.decimalPad)
                             .focused($isCustomTireSizeStringFieldFocused)
                             .onChange(of: customTireSizeString) { [old = customTireSizeString] new in
-                                if let size = Double(new),
+                                if let size = Int(new),
                                    new.count <= TireSize.significantDigits {
+                                    // 整数として解釈できる文字列
                                     tireSize = .custom(size)
                                 } else if !new.isEmpty {
+                                    // 空文字列以外の不正な文字列
                                     customTireSizeString = old
+                                } else {
+                                    // 空文字列
+                                    tireSize = .standard(.iso23_622)
                                 }
                             }
-                        Button {
-                            customTireSizeString = ""
-                            isCustomTireSizeStringFieldFocused = true
-                        } label: {
-                            Image(systemName: "multiply.circle.fill")
-                                .foregroundColor(.init(UIColor.systemGray3))
+                        if !customTireSizeString.isEmpty {
+                            Button {
+                                customTireSizeString = ""
+                                isCustomTireSizeStringFieldFocused = true
+                            } label: {
+                                Image(systemName: "multiply.circle.fill")
+                                    .foregroundColor(.init(UIColor.systemGray3))
+                            }
                         }
                     }
                     .listRowBackground(Color(UIColor.secondarySystemGroupedBackground))
@@ -92,18 +99,18 @@ struct TireSettingView_Previews: PreviewProvider {
     static var previews: some View {
         TireSettingView(tireSize: .constant(.standard(.iso25_622)))
         TireSettingView(tireSize: .constant(.custom(200)))
-            .previewLayout(.fixed(width: 400.0, height: 150.0))
+            .previewLayout(.sizeThatFits)
             .preferredColorScheme(.dark)
         TireSettingView(tireSize: .constant(.custom(200)))
-            .previewLayout(.fixed(width: 400.0, height: 150.0))
+            .previewLayout(.sizeThatFits)
     }
 }
 
 enum TireSize: Codable, RawRepresentable {
-    static let significantDigits = 6
+    static let significantDigits = 4
 
     init?(rawValue: String) {
-        guard let d = Double(rawValue) else { return nil }
+        guard let d = Int(rawValue) else { return nil }
 
         if let standardTireSize = StandardTireSize(rawValue: d) {
             self = .standard(standardTireSize)
@@ -115,18 +122,18 @@ enum TireSize: Codable, RawRepresentable {
     var rawValue: String { label }
 
     case standard(StandardTireSize)
-    case custom(Double)
+    case custom(Int)
 
     var label: String {
         switch self {
         case .standard(let standardTireSize):
             return standardTireSize.label
         case .custom(let circumference):
-            return String("\(circumference)".prefix(Self.significantDigits))
+            return String(circumference)
         }
     }
 
-    var circumference: Double {
+    var circumference: Int {
         switch self {
         case .standard(let standardTireSize):
             return standardTireSize.circumference
@@ -136,7 +143,7 @@ enum TireSize: Codable, RawRepresentable {
     }
 }
 
-enum StandardTireSize: Double, CaseIterable {
+enum StandardTireSize: Int, CaseIterable {
     case iso23_622 = 2097
     case iso25_622 = 2105
     case iso28_622 = 2136
@@ -152,7 +159,7 @@ enum StandardTireSize: Double, CaseIterable {
         }
     }
 
-    var circumference: Double {
+    var circumference: Int {
         rawValue
     }
 }
