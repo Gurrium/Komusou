@@ -12,7 +12,7 @@ struct PlayView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            WorldView()
+            WorldView(speedSensor: KomusouApp.speedSensor)
                 .edgesIgnoringSafeArea(.all)
             Button {
                 isSettingsPresented = true

@@ -18,6 +18,8 @@
 		E3178D8627D4BB930000DB0F /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D8527D4BB930000DB0F /* art.scnassets */; };
 		E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D8A27D7753C0000DB0F /* SettingsView.swift */; };
 		E347936927D8D35E008C5829 /* TireSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E347936827D8D35E008C5829 /* TireSettingView.swift */; };
+		E36508A227E212DE00BEE34F /* SpeedSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36508A127E212DE00BEE34F /* SpeedSensor.swift */; };
+		E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,8 @@
 		E3178D8527D4BB930000DB0F /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
 		E3178D8A27D7753C0000DB0F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E347936827D8D35E008C5829 /* TireSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TireSettingView.swift; sourceTree = "<group>"; };
+		E36508A127E212DE00BEE34F /* SpeedSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedSensor.swift; sourceTree = "<group>"; };
+		E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSpeedSensor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +110,8 @@
 				E3178D5727D379710000DB0F /* PlayView.swift */,
 				E347936727D8D342008C5829 /* Settings */,
 				E3178D8327D4B8F80000DB0F /* WorldView.swift */,
+				E36508A127E212DE00BEE34F /* SpeedSensor.swift */,
+				E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */,
 				E3178D8527D4BB930000DB0F /* art.scnassets */,
 				E3178D5927D379730000DB0F /* Assets.xcassets */,
 				E3178D5B27D379730000DB0F /* Preview Content */,
@@ -281,8 +287,10 @@
 				E3178D5827D379710000DB0F /* PlayView.swift in Sources */,
 				E347936927D8D35E008C5829 /* TireSettingView.swift in Sources */,
 				E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */,
+				E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */,
 				E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */,
 				E3178D8427D4B8F80000DB0F /* WorldView.swift in Sources */,
+				E36508A227E212DE00BEE34F /* SpeedSensor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
