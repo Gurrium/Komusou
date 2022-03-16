@@ -19,13 +19,9 @@ struct TireSettingView: View {
 
         if case .custom(let circumference) = tireSize.wrappedValue {
             customTireSizeString = String(circumference)
-        } else {
-            customTireSizeString = ""
-        }
-
-        if case .custom = tireSize.wrappedValue {
             isTireCustomSize = true
         } else {
+            customTireSizeString = ""
             isTireCustomSize = false
         }
     }
@@ -50,12 +46,12 @@ struct TireSettingView: View {
                                    new.count <= TireSize.significantDigits {
                                     // 整数として解釈できる文字列
                                     tireSize = .custom(size)
-                                } else if !new.isEmpty {
-                                    // 空文字列以外の不正な文字列
-                                    customTireSizeString = old
-                                } else {
+                                } else if new.isEmpty {
                                     // 空文字列
                                     tireSize = .standard(.iso23_622)
+                                } else {
+                                    // 空文字列以外の不正な文字列
+                                    customTireSizeString = old
                                 }
                             }
                         if !customTireSizeString.isEmpty {
