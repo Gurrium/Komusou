@@ -16,7 +16,13 @@ final class BluetoothSpeedSensor: NSObject, SpeedSensor {
     // TODO: 複数のCBCentralManagerを作ってもいいならこのまま
     private let centralManager = CBCentralManager()
 
-    private var isBluetoothEnabled = false
+    private var isBluetoothEnabled = false {
+        didSet {
+            if isBluetoothEnabled {
+                centralManager.scanForPeripherals(withServices: [.cyclingSpeedAndCadence], options: nil)
+            }
+        }
+    }
     private var connectedPeripheral: CBPeripheral?
     // speed measurement
     private var speed: Double = 0 {
@@ -119,9 +125,4 @@ extension BluetoothSpeedSensor: CBPeripheralDelegate {
 
         return revolutionsPerSec * Double(wheelCircumference) * 3600 / 1_000_000 // [km/h]
     }
-}
-
-extension CBUUID {
-    static var cyclingSpeedAndCadence: Self { Self.init(string: "1816") }
-    static var cscMeasurement: Self { Self.init(string: "2a5b") }
 }
