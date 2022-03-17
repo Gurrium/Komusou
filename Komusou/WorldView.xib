@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="xFZ-Bd-mgL" customClass="_WorldView" customModule="Komusou" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" sceneName="art.scnassets/world.scn" translatesAutoresizingMaskIntoConstraints="NO" id="U88-wA-C1c">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                </sceneKitView>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="bottom" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="5PK-Bs-zAa">
+                    <rect key="frame" x="215" y="798" width="199" height="64"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Speed: 30[km/h]" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LZB-NY-jG4">
+                            <rect key="frame" x="16.5" y="0.0" width="182.5" height="30"/>
+                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cadence: 90[rpm]" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dtV-Kv-Fgx">
+                            <rect key="frame" x="0.0" y="34" width="199" height="30"/>
+                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                </stackView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="1Fp-JU-sil"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="U88-wA-C1c" firstAttribute="top" secondItem="xFZ-Bd-mgL" secondAttribute="top" id="UzJ-af-Ln8"/>
+                <constraint firstAttribute="trailing" secondItem="U88-wA-C1c" secondAttribute="trailing" id="XXm-ee-AY1"/>
+                <constraint firstAttribute="trailing" secondItem="5PK-Bs-zAa" secondAttribute="trailing" id="cUC-ub-6aV"/>
+                <constraint firstAttribute="bottom" secondItem="U88-wA-C1c" secondAttribute="bottom" id="fOP-NS-YIm"/>
+                <constraint firstItem="1Fp-JU-sil" firstAttribute="bottom" secondItem="5PK-Bs-zAa" secondAttribute="bottom" id="gfk-T9-DOe"/>
+                <constraint firstItem="U88-wA-C1c" firstAttribute="leading" secondItem="xFZ-Bd-mgL" secondAttribute="leading" id="sjs-3D-6t9"/>
+            </constraints>
+            <connections>
+                <outlet property="cadenceLabel" destination="dtV-Kv-Fgx" id="6r8-Uz-DpV"/>
+                <outlet property="scnView" destination="U88-wA-C1c" id="yPd-fM-Jjd"/>
+                <outlet property="speedLabel" destination="LZB-NY-jG4" id="cMI-8q-WVg"/>
+            </connections>
+            <point key="canvasLocation" x="771" y="138"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
