@@ -55,9 +55,12 @@ final class _WorldView: UIView {
     private var box: SCNNode = {
         let box = SCNNode()
         box.geometry = SCNBox(width: 5, height: 2, length: 2, chamferRadius: 0)
+        box.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+//        box.geometry?.firstMaterial?.ambient.contents = UIColor.blue
 
         return box
     }()
+    let boxBase = SCNNode()
 
     func build(speedSensor: SpeedSensor, cadenceSensor: CadenceSensor) {
         self.speedSensor = speedSensor
@@ -77,23 +80,40 @@ final class _WorldView: UIView {
         let scene = scnView.scene!
 
         let plane = SCNNode()
-        plane.runAction(.rotateBy(x: -.pi / 2, y: 0, z: 0, duration: .zero))
-        plane.geometry = SCNPlane(width: 50, height: 50)
+        plane.geometry = SCNFloor()
         plane.geometry?.firstMaterial?.diffuse.contents = UIImage(named: "art.scnassets/check.png")
         plane.geometry?.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(10, 10, 0)
         plane.geometry?.firstMaterial?.diffuse.wrapS = .repeat
         plane.geometry?.firstMaterial?.diffuse.wrapT = .repeat
         scene.rootNode.addChildNode(plane)
 
-        scene.rootNode.addChildNode(box)
-        box.pivot = SCNMatrix4MakeTranslation(10, 0, 0)
+        scene.rootNode.addChildNode(boxBase)
+        boxBase.addChildNode(box)
+        boxBase.runAction(.moveBy(x: 0, y: 3, z: 0, duration: 0))
+//        box.pivot = SCNMatrix4MakeTranslation(10, 0, 0)
 
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        scene.rootNode.addChildNode(cameraNode)
+        boxBase.addChildNode(cameraNode)
         cameraNode.runAction(.group([
-            .moveBy(x: 0, y: 70, z: 0, duration: 0),
-            .rotateBy(x: -.pi / 2, y: 0, z: 0, duration: 0)
+            .moveBy(x: -20, y: 20, z: 0, duration: 0),
+            .rotateBy(x: 0, y: -.pi / 2, z: -.pi / 6, duration: 0)
+        ]))
+
+        let ambientLight = SCNLight()
+        ambientLight.type = .ambient
+        ambientLight.intensity = 100
+        scnView.scene?.rootNode.light = ambientLight
+
+        let directionalLight = SCNLight()
+        directionalLight.type = .directional
+        directionalLight.intensity = 800
+        let directionalLightNode = SCNNode()
+        directionalLightNode.light = directionalLight
+        scnView.scene?.rootNode.addChildNode(directionalLightNode)
+        directionalLightNode.runAction(.group([
+            .moveBy(x: -100, y: 100, z: 0, duration: 0),
+            .rotateBy(x: 0, y: -.pi / 4, z: -.pi / 4, duration: 0)
         ]))
 
         scnView.scene = scene
@@ -108,17 +128,23 @@ final class _WorldView: UIView {
 
 extension _WorldView: SpeedSensorDelegate {
     var wheelCircumference: Int { 2048 }
+    var movingKey: String { "movingAction" }
 
     func onSpeedUpdate(_ speed: Double) {
-        box.removeAllActions()
-        box.runAction(.repeatForever(.rotateBy(x: 0, y: speed, z: 0, duration: 1)))
+        boxBase.removeAction(forKey: movingKey)
+        boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: movingKey)
 
         self.speed = speed
     }
 }
 
 extension _WorldView: CadenceSensorDelegate {
+    var rotatingKey: String { "rotatingAction" }
+
     func onCadenceUpdate(_ cadence: Double) {
+        box.removeAction(forKey: rotatingKey)
+        box.runAction(.repeatForever(.rotateBy(x: cadence, y: 0, z: 0, duration: 1)), forKey: rotatingKey)
+
         self.cadence = cadence
     }
 }
