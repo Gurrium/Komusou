@@ -56,7 +56,6 @@ final class _WorldView: UIView {
         let box = SCNNode()
         box.geometry = SCNBox(width: 5, height: 2, length: 2, chamferRadius: 0)
         box.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
-//        box.geometry?.firstMaterial?.ambient.contents = UIColor.blue
 
         return box
     }()
