@@ -89,7 +89,6 @@ final class _WorldView: UIView {
         scene.rootNode.addChildNode(boxBase)
         boxBase.addChildNode(box)
         boxBase.runAction(.moveBy(x: 0, y: 3, z: 0, duration: 0))
-//        box.pivot = SCNMatrix4MakeTranslation(10, 0, 0)
 
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
