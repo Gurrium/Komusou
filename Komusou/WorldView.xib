@@ -15,53 +15,19 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" sceneName="art.scnassets/world.scn" translatesAutoresizingMaskIntoConstraints="NO" id="U88-wA-C1c">
-                    <rect key="frame" x="0.0" y="0.0" width="414" height="784"/>
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                 </sceneKitView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ERg-w6-0Ln">
-                    <rect key="frame" x="0.0" y="784" width="414" height="112"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="5PK-Bs-zAa">
-                            <rect key="frame" x="8" y="16" width="398" height="64"/>
-                            <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Speed: 30[km/h]" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LZB-NY-jG4">
-                                    <rect key="frame" x="0.0" y="0.0" width="182.5" height="30"/>
-                                    <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
-                                    <nil key="textColor"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cadence: 90[rpm]" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dtV-Kv-Fgx">
-                                    <rect key="frame" x="0.0" y="34" width="199" height="30"/>
-                                    <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
-                                    <nil key="textColor"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    <constraints>
-                        <constraint firstAttribute="bottom" secondItem="5PK-Bs-zAa" secondAttribute="bottom" constant="32" id="XKW-VL-lad"/>
-                        <constraint firstItem="5PK-Bs-zAa" firstAttribute="leading" secondItem="ERg-w6-0Ln" secondAttribute="leading" constant="8" id="g5A-nR-yZ1"/>
-                        <constraint firstItem="5PK-Bs-zAa" firstAttribute="top" secondItem="ERg-w6-0Ln" secondAttribute="top" constant="16" id="gBP-g1-DZy"/>
-                        <constraint firstAttribute="trailing" secondItem="5PK-Bs-zAa" secondAttribute="trailing" constant="8" id="nqC-7x-YB4"/>
-                    </constraints>
-                </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="1Fp-JU-sil"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
-                <constraint firstItem="1Fp-JU-sil" firstAttribute="trailing" secondItem="ERg-w6-0Ln" secondAttribute="trailing" id="3ut-yl-nyr"/>
+                <constraint firstAttribute="bottom" secondItem="U88-wA-C1c" secondAttribute="bottom" id="GoA-1k-tLh"/>
                 <constraint firstItem="U88-wA-C1c" firstAttribute="top" secondItem="xFZ-Bd-mgL" secondAttribute="top" id="UzJ-af-Ln8"/>
                 <constraint firstAttribute="trailing" secondItem="U88-wA-C1c" secondAttribute="trailing" id="XXm-ee-AY1"/>
-                <constraint firstItem="ERg-w6-0Ln" firstAttribute="bottom" secondItem="xFZ-Bd-mgL" secondAttribute="bottom" id="ZuH-iI-geK"/>
-                <constraint firstItem="ERg-w6-0Ln" firstAttribute="leading" secondItem="1Fp-JU-sil" secondAttribute="leading" id="chT-yX-Rpv"/>
-                <constraint firstItem="ERg-w6-0Ln" firstAttribute="top" secondItem="U88-wA-C1c" secondAttribute="bottom" id="fOP-NS-YIm"/>
                 <constraint firstItem="U88-wA-C1c" firstAttribute="leading" secondItem="xFZ-Bd-mgL" secondAttribute="leading" id="sjs-3D-6t9"/>
             </constraints>
             <connections>
-                <outlet property="cadenceLabel" destination="dtV-Kv-Fgx" id="6r8-Uz-DpV"/>
                 <outlet property="scnView" destination="U88-wA-C1c" id="yPd-fM-Jjd"/>
-                <outlet property="speedLabel" destination="LZB-NY-jG4" id="cMI-8q-WVg"/>
             </connections>
             <point key="canvasLocation" x="771" y="138"/>
         </view>

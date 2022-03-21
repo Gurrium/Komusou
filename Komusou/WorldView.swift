@@ -30,19 +30,19 @@ final class WorldView: UIViewRepresentable {
 
 final class _WorldView: UIView {
     @IBOutlet weak var scnView: SCNView!
-    @IBOutlet weak var speedLabel: UILabel!
-    @IBOutlet weak var cadenceLabel: UILabel!
+//    @IBOutlet weak var speedLabel: UILabel!
+//    @IBOutlet weak var cadenceLabel: UILabel!
 
     private var speedSensor: SpeedSensor!
     private var speed = 0.0 {
         didSet {
-            speedLabel.text = "Speed: \(formatter.string(from: .init(value: speed))!)[km/h]"
+//            speedLabel.text = "Speed: \(formatter.string(from: .init(value: speed))!)[km/h]"
         }
     }
     private var cadenceSensor: CadenceSensor!
     private var cadence = 0.0 {
         didSet {
-            cadenceLabel.text = "Cadence: \(formatter.string(from: .init(value: cadence))!)[rpm]" // km/hと合わせてr/mにしたい気持ちもあるが一般的な表記でないので…
+//            cadenceLabel.text = "Cadence: \(formatter.string(from: .init(value: cadence))!)[rpm]" // km/hと合わせてr/mにしたい気持ちもあるが一般的な表記でないので…
         }
     }
     private let formatter: NumberFormatter = {
@@ -68,11 +68,27 @@ final class _WorldView: UIView {
         self.speedSensor.delegate = self
         self.cadenceSensor.delegate = self
 
-        setupScnView()
+        setupViews()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+    }
+
+    private func setupViews() {
+        setupScnView()
+        setupControlPanelView()
+    }
+
+    private func setupControlPanelView() {
+        let controlPanel = UINib(nibName: "ControlPanelView", bundle: nil).instantiate(withOwner: nil).first as! ControlPanelView
+        controlPanel.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(controlPanel)
+
+        NSLayoutConstraint.activate([
+            self.trailingAnchor.constraint(equalTo: controlPanel.trailingAnchor),
+            controlPanel.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
 
     private func setupScnView() {
