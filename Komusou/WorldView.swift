@@ -30,28 +30,20 @@ final class WorldView: UIViewRepresentable {
 
 final class _WorldView: UIView {
     @IBOutlet weak var scnView: SCNView!
-//    @IBOutlet weak var speedLabel: UILabel!
-//    @IBOutlet weak var cadenceLabel: UILabel!
+    private var controlPanel: ControlPanelView
 
     private var speedSensor: SpeedSensor!
     private var speed = 0.0 {
         didSet {
-//            speedLabel.text = "Speed: \(formatter.string(from: .init(value: speed))!)[km/h]"
+            controlPanel.render(speed: speed, cadence: cadence)
         }
     }
     private var cadenceSensor: CadenceSensor!
     private var cadence = 0.0 {
         didSet {
-//            cadenceLabel.text = "Cadence: \(formatter.string(from: .init(value: cadence))!)[rpm]" // km/hと合わせてr/mにしたい気持ちもあるが一般的な表記でないので…
+            controlPanel.render(speed: speed, cadence: cadence)
         }
-    }
-    private let formatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.usesSignificantDigits = true
-        formatter.maximumSignificantDigits = 4
-
-        return formatter
-    }()
+}
     private var box: SCNNode = {
         let box = SCNNode()
         box.geometry = SCNBox(width: 5, height: 2, length: 2, chamferRadius: 0)
@@ -72,6 +64,8 @@ final class _WorldView: UIView {
     }
 
     required init?(coder: NSCoder) {
+        controlPanel = UINib(nibName: "ControlPanelView", bundle: nil).instantiate(withOwner: nil).first as! ControlPanelView
+
         super.init(coder: coder)
     }
 
@@ -81,13 +75,12 @@ final class _WorldView: UIView {
     }
 
     private func setupControlPanelView() {
-        let controlPanel = UINib(nibName: "ControlPanelView", bundle: nil).instantiate(withOwner: nil).first as! ControlPanelView
         controlPanel.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(controlPanel)
 
         NSLayoutConstraint.activate([
-            self.trailingAnchor.constraint(equalTo: controlPanel.trailingAnchor),
-            controlPanel.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor)
+            controlPanel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16),
+            controlPanel.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor)
         ])
     }
 

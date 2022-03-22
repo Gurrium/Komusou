@@ -30,7 +30,7 @@ final class MockSpeedSensor: SpeedSensor {
 
     private func scheduleUpdate() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            let speed = 2 * Double.pi / Double((1...4).randomElement()!)
+            let speed = Double((0...60).randomElement()!) / Double((1...60).randomElement()!)
             print(speed)
             self?.delegate?.onSpeedUpdate(speed)
 
