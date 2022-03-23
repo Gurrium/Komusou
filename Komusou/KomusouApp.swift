@@ -7,10 +7,15 @@
 
 import SwiftUI
 
+// TODO:
+// - CBCentralManagerが1つしか使えなさそうなので修正する
+// - Mac対応
+// - Bluetoothが有効にされていないときの対応
+
 @main
 struct KomusouApp: App {
-    static let speedSensor = MockSpeedSensor()
-    static let cadenceSensor = MockCadenceSensor()
+    static let speedSensor = BluetoothSpeedSensor()
+    static let cadenceSensor = BluetoothCadenceSensor()
 
     var body: some Scene {
         WindowGroup {

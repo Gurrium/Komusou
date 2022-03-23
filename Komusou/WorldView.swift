@@ -10,13 +10,8 @@ import SceneKit
 
 final class WorldView: UIViewRepresentable {
     private let worldView: _WorldView
-    private let speedSensor: SpeedSensor
-    private let cadenceSensor: CadenceSensor
 
     init(speedSensor: SpeedSensor, cadenceSensor: CadenceSensor) {
-        self.speedSensor = speedSensor
-        self.cadenceSensor = cadenceSensor
-
         worldView = UINib(nibName: "WorldView", bundle: nil).instantiate(withOwner: nil).first as! _WorldView
         worldView.build(speedSensor: speedSensor, cadenceSensor: cadenceSensor)
     }

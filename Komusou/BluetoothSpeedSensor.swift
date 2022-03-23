@@ -53,13 +53,13 @@ extension BluetoothSpeedSensor: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        // ここで参照を保持しないと破棄される
+        connectedPeripheral = peripheral
+        
         centralManager.connect(peripheral, options: nil)
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        // ここで参照を保持しないと破棄される
-        connectedPeripheral = peripheral
-        
         peripheral.delegate = self
         peripheral.discoverServices([.cyclingSpeedAndCadence])
     }
