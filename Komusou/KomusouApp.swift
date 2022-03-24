@@ -8,7 +8,8 @@
 import SwiftUI
 
 // TODO:
-// - CBCentralManagerが1つしか使えなさそうなので修正する
+// - Reconnecting to Peripherals https://developer.apple.com/library/archive/documentation/NetworkingInternetWeb/Conceptual/CoreBluetooth_concepts/BestPracticesForInteractingWithARemotePeripheralDevice/BestPracticesForInteractingWithARemotePeripheralDevice.html#//apple_ref/doc/uid/TP40013257-CH6-SW6
+//   - ユーザがセンサーを選ぶ画面を作る → ユーザが選んだセンサーがあればそれに接続する ということをすればそれぞれのセンサーを扱うクラスを安全に分離できそう
 // - Mac対応
 // - Bluetoothが有効にされていないときの対応
 
