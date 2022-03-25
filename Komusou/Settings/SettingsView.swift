@@ -22,8 +22,9 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    // TODO:
-                    //  - センサーの設定
+                    NavigationLink(destination: SensorSettingView()) {
+                        Text("センサー")
+                    }
                 }
                 Section(header: Text("その他")) {
                     HStack {

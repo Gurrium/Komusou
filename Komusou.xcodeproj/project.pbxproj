@@ -26,6 +26,7 @@
 		E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */; };
 		E383923627E8B23D008F156F /* ControlPanelView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E383923527E8B23D008F156F /* ControlPanelView.xib */; };
 		E383923827E8B608008F156F /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E383923727E8B608008F156F /* ControlPanelView.swift */; };
+		E383923C27EDE965008F156F /* SensorSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E383923B27EDE965008F156F /* SensorSettingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 		E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSpeedSensor.swift; sourceTree = "<group>"; };
 		E383923527E8B23D008F156F /* ControlPanelView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlPanelView.xib; sourceTree = "<group>"; };
 		E383923727E8B608008F156F /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
+		E383923B27EDE965008F156F /* SensorSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorSettingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				E3178D8A27D7753C0000DB0F /* SettingsView.swift */,
+				E383923B27EDE965008F156F /* SensorSettingView.swift */,
 				E347936827D8D35E008C5829 /* TireSettingView.swift */,
 			);
 			path = Settings;
@@ -309,6 +312,7 @@
 				E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */,
 				E383923827E8B608008F156F /* ControlPanelView.swift in Sources */,
 				E3535C4F27E3622F0035EDFA /* CadenceSensor.swift in Sources */,
+				E383923C27EDE965008F156F /* SensorSettingView.swift in Sources */,
 				E3535C5127E362600035EDFA /* BluetoothCadenceSensor.swift in Sources */,
 				E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */,
 				E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */,
