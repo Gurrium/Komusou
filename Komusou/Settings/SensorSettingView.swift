@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import CoreBluetooth
+import Combine
 
 struct SensorSettingView: View {
     @State
@@ -18,18 +20,16 @@ struct SensorSettingView: View {
     var cadenceSensorName: String = ""
 
     var body: some View {
-        NavigationView {
-            List {
-                Row(isSheetPresented: $isSpeedSensorSheetPresented, itemLabel: "スピードセンサー", valueLabel: speedSensorName) {
-                    Text("Speed Sensor")
-                }
-                Row(isSheetPresented: $isCadenceSensorSheetPresented, itemLabel: "ケイデンスセンサー", valueLabel: cadenceSensorName) {
-                    Text("Cadence Sensor")
-                }
+        List {
+            Row(isSheetPresented: $isSpeedSensorSheetPresented, itemLabel: "スピードセンサー", valueLabel: speedSensorName) {
+                // TODO: 空表示
+                SensorSelectingView()
             }
-            .listStyle(.insetGrouped)
-            .navigationTitle("センサー")
+            Row(isSheetPresented: $isCadenceSensorSheetPresented, itemLabel: "ケイデンスセンサー", valueLabel: cadenceSensorName) {
+                Text("Cadence Sensor")
+            }
         }
+        .listStyle(.insetGrouped)
     }
 
     private struct Row<Content: View>: View {
@@ -57,8 +57,90 @@ struct SensorSettingView: View {
     }
 }
 
+struct SensorSelectingView: View {
+    @ObservedObject
+    var state = SensorSelectingViewState()
+
+    var body: some View {
+        let items: [(UUID, String)] = state.sensors.compactMap { sensor in
+            guard let name = sensor.name else { return nil }
+
+            return (sensor.identifier, name)
+        }
+
+        List(items, id: \.0) { item in
+            Text(item.1)
+        }
+        .onAppear(perform: state.startScanningSensorsAfterBluetoothIsEnabled)
+        .onDisappear(perform: state.stopScanningSensors)
+    }
+}
+
+final class SensorSelectingViewState: ObservableObject {
+    @Published
+    var sensors = Set<CBPeripheral>()
+
+    private var bluetoothManager = BluetoothManager.shared
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        bluetoothManager.$discoveredPeripherals.assign(to: &$sensors)
+    }
+
+    func startScanningSensorsAfterBluetoothIsEnabled() {
+        bluetoothManager.$isBluetoothEnabled.first(where: { $0 }).sink { [weak self] enabled in
+            if enabled {
+                self?.bluetoothManager.startScanningSensors()
+            }
+        }
+        .store(in: &cancellables)
+    }
+
+    func stopScanningSensors() {
+        bluetoothManager.stopScanningSensors()
+    }
+}
+
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSettingView()
     }
+}
+
+final class BluetoothManager: NSObject {
+    static let shared = BluetoothManager()
+
+    @Published
+    private(set) var discoveredPeripherals = Set<CBPeripheral>()
+    @Published
+    private(set) var isBluetoothEnabled = false
+
+    private let centralManager = CBCentralManager()
+
+    override init() {
+        super.init()
+
+        centralManager.delegate = self
+    }
+
+    func startScanningSensors() {
+        centralManager.scanForPeripherals(withServices: [.cyclingSpeedAndCadence], options: nil)
+    }
+
+    func stopScanningSensors() {
+        centralManager.stopScan()
+    }
+}
+
+extension BluetoothManager: CBCentralManagerDelegate {
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        isBluetoothEnabled = central.state == .poweredOn
+    }
+
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        discoveredPeripherals.insert(peripheral)
+    }
+}
+
+extension BluetoothManager: CBPeripheralDelegate {
 }

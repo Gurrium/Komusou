@@ -15,8 +15,8 @@ import SwiftUI
 
 @main
 struct KomusouApp: App {
-    static let speedSensor = BluetoothSpeedSensor()
-    static let cadenceSensor = BluetoothCadenceSensor()
+    static let speedSensor = MockSpeedSensor()
+    static let cadenceSensor = MockCadenceSensor()
 
     var body: some Scene {
         WindowGroup {
