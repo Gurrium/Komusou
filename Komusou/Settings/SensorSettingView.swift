@@ -68,9 +68,21 @@ struct SensorSelectingView: View {
             return (sensor.identifier, name)
         }
 
-        List(items, id: \.0) { item in
-            Text(item.1)
+        List {
+            Section {
+                if !items.isEmpty {
+                    ForEach(items, id: \.0) { item in
+                        Text(item.1)
+                    }
+                }
+            } header: {
+                HStack(spacing: 8) {
+                    Text("センサー")
+                    ProgressView()
+                }
+            }
         }
+        .listStyle(.insetGrouped)
         .onAppear(perform: state.startScanningSensorsAfterBluetoothIsEnabled)
         .onDisappear(perform: state.stopScanningSensors)
     }
@@ -104,6 +116,7 @@ final class SensorSelectingViewState: ObservableObject {
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSettingView()
+        SensorSelectingView()
     }
 }
 
