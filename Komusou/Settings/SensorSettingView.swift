@@ -12,27 +12,15 @@ import Combine
 struct SensorSettingView: View {
     @State
     private var isSpeedSensorSheetPresented = false
-
-    @AppStorage("speed_sensor_uuid")
-    private var speedSensorUUIDString: String?
-
-    private var speedSensorName: String {
-        guard let string = speedSensorUUIDString,
-              let uuid = UUID(uuidString: string),
-              let peripheral = BluetoothManager.shared.connectedPeripherals[uuid],
-              let name = peripheral.name else {
-            return ""
-        }
-
-        return name
-    }
+    @ObservedObject
+    private var state = SensorSettingViewState()
 
     var body: some View {
         List {
             Row(
                 isSheetPresented: $isSpeedSensorSheetPresented,
                 itemLabel: "スピードセンサー",
-                valueLabel: speedSensorName
+                valueLabel: state.speedSensorName
             ) {
                 SensorSelectingView()
             }
@@ -66,6 +54,20 @@ struct SensorSettingView: View {
     }
 }
 
+final class SensorSettingViewState: ObservableObject {
+    @Published
+    private(set) var speedSensorName = ""
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        BluetoothManager.shared.$speedSensor.sink { [weak self] peripheral in
+            self?.speedSensorName = peripheral?.name ?? ""
+        }
+        .store(in: &cancellables)
+    }
+}
+
 struct SensorSelectingView: View {
     @ObservedObject
     var state = SensorSelectingViewState()
@@ -76,7 +78,7 @@ struct SensorSelectingView: View {
                 if !state.items.isEmpty {
                     ForEach(state.items, id: \.0) { item in
                         Button {
-                            state.saveSpeedSensor(uuid: item.0)
+                            state.connectToSpeedSensor(uuid: item.0)
                         } label: {
                             Text(item.1)
                         }
@@ -97,12 +99,12 @@ struct SensorSelectingView: View {
 
 final class SensorSelectingViewState: ObservableObject {
     @Published
-    var sensors = Set<CBPeripheral>()
+    private var sensors = [UUID: CBPeripheral]()
     var items: [(UUID, String)] {
-        sensors.compactMap { sensor in
-            guard let name = sensor.name else { return nil }
+        sensors.compactMap { record in
+            guard let name = record.value.name else { return nil }
 
-            return (sensor.identifier, name)
+            return (record.key, name)
         }
     }
 
@@ -114,6 +116,8 @@ final class SensorSelectingViewState: ObservableObject {
     }
 
     func startScanningSensorsAfterBluetoothIsEnabled() {
+        // TODO: Bluetoothが有効かどうかはここに露出すべきでない
+        // BluetoothManagerの中で有効になったらsubscriberに流すぐらいでいい
         bluetoothManager.$isBluetoothEnabled
             .first(where: { $0 })
             .sink { [weak self] enabled in
@@ -128,8 +132,8 @@ final class SensorSelectingViewState: ObservableObject {
         bluetoothManager.stopScanningSensors()
     }
 
-    func saveSpeedSensor(uuid: UUID) {
-        // TODO: 実装
+    func connectToSpeedSensor(uuid: UUID) {
+        bluetoothManager.connectToSpeedSensor(uuid: uuid)
     }
 }
 
@@ -142,15 +146,37 @@ struct SensorSettingView_Previews: PreviewProvider {
 
 final class BluetoothManager: NSObject {
     static let shared = BluetoothManager()
+    static private let kSpeedSensorKey = "speed_sensor_key"
 
     @Published
-    private(set) var discoveredPeripherals = Set<CBPeripheral>()
+    private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
     @Published
-    private(set) var connectedPeripherals = [UUID: CBPeripheral]()
+    private(set) var speedSensor: CBPeripheral?
+    private var speedSensorUUID: UUID? {
+        get {
+            if let uuid = _speedSensorUUID { return uuid }
+
+            let retrieved = UUID(uuidString: userDefaults.string(forKey: Self.kSpeedSensorKey) ?? "")
+            _speedSensorUUID = retrieved
+
+            return retrieved
+        }
+        set {
+            _speedSensorUUID = newValue
+
+            if let newValue = newValue {
+                userDefaults.set(newValue.uuidString, forKey: Self.kSpeedSensorKey)
+            } else {
+                userDefaults.removeObject(forKey: Self.kSpeedSensorKey)
+            }
+        }
+    }
+    private var _speedSensorUUID: UUID?
     @Published
     private(set) var isBluetoothEnabled = false
 
     private let centralManager = CBCentralManager()
+    private let userDefaults = UserDefaults.standard
 
     override init() {
         super.init()
@@ -159,11 +185,18 @@ final class BluetoothManager: NSObject {
     }
 
     func startScanningSensors() {
-        centralManager.scanForPeripherals(withServices: [.cyclingSpeedAndCadence], options: nil)
+        centralManager.scanForPeripherals(withServices: nil, options: nil)
     }
 
     func stopScanningSensors() {
         centralManager.stopScan()
+    }
+
+    func connectToSpeedSensor(uuid: UUID) {
+        guard let peripheral = discoveredPeripherals[uuid] else { return }
+
+        speedSensorUUID = uuid
+        centralManager.connect(peripheral)
     }
 }
 
@@ -173,7 +206,16 @@ extension BluetoothManager: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        discoveredPeripherals.insert(peripheral)
+        discoveredPeripherals[peripheral.identifier] = peripheral
+    }
+
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        switch peripheral.identifier {
+        case speedSensorUUID:
+            speedSensor = peripheral
+        default:
+            break
+        }
     }
 }
 
