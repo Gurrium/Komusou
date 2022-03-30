@@ -92,7 +92,7 @@ struct SensorSelectingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .onAppear(perform: state.startScanningSensorsAfterBluetoothIsEnabled)
+        .onAppear(perform: state.startScanningSensors)
         .onDisappear(perform: state.stopScanningSensors)
     }
 }
@@ -115,17 +115,8 @@ final class SensorSelectingViewState: ObservableObject {
         bluetoothManager.$discoveredPeripherals.assign(to: &$sensors)
     }
 
-    func startScanningSensorsAfterBluetoothIsEnabled() {
-        // TODO: Bluetoothが有効かどうかはここに露出すべきでない
-        // BluetoothManagerの中で有効になったらsubscriberに流すぐらいでいい
-        bluetoothManager.$isBluetoothEnabled
-            .first(where: { $0 })
-            .sink { [weak self] enabled in
-                if enabled {
-                    self?.bluetoothManager.startScanningSensors()
-                }
-            }
-            .store(in: &cancellables)
+    func startScanningSensors() {
+        bluetoothManager.startScanningSensors()
     }
 
     func stopScanningSensors() {
@@ -152,6 +143,7 @@ final class BluetoothManager: NSObject {
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
     @Published
     private(set) var speedSensor: CBPeripheral?
+
     private var speedSensorUUID: UUID? {
         get {
             if let uuid = _speedSensorUUID { return uuid }
@@ -173,7 +165,9 @@ final class BluetoothManager: NSObject {
     }
     private var _speedSensorUUID: UUID?
     @Published
-    private(set) var isBluetoothEnabled = false
+    private var isBluetoothEnabled = false
+    private var isScanningPeripherals = false
+    private var cancellables = Set<AnyCancellable>()
 
     private let centralManager = CBCentralManager()
     private let userDefaults = UserDefaults.standard
@@ -185,10 +179,22 @@ final class BluetoothManager: NSObject {
     }
 
     func startScanningSensors() {
-        centralManager.scanForPeripherals(withServices: nil, options: nil)
+        guard !isScanningPeripherals else { return }
+        isScanningPeripherals = true
+
+        $isBluetoothEnabled
+            .first(where: { $0 })
+            .sink { [weak self] enabled in
+                if enabled {
+                    self?.centralManager.scanForPeripherals(withServices: nil, options: nil)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func stopScanningSensors() {
+        isScanningPeripherals = true
+
         centralManager.stopScan()
     }
 
