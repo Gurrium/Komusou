@@ -22,7 +22,7 @@ struct SensorSettingView: View {
                 itemLabel: "スピードセンサー",
                 valueLabel: state.speedSensorName
             ) {
-                SensorSelectingView()
+                SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented)
             }
             // TODO: ケイデンスセンサー
         }
@@ -71,6 +71,12 @@ final class SensorSettingViewState: ObservableObject {
 struct SensorSelectingView: View {
     @ObservedObject
     var state = SensorSelectingViewState()
+    @Binding
+    private var isSheetPresented: Bool
+
+    init(isSheetPresented: Binding<Bool>) {
+        _isSheetPresented = isSheetPresented
+    }
 
     var body: some View {
         List {
@@ -78,7 +84,9 @@ struct SensorSelectingView: View {
                 if !state.items.isEmpty {
                     ForEach(state.items, id: \.0) { item in
                         Button {
+                            // TODO: 接続に成功したらsheetを閉じる
                             state.connectToSpeedSensor(uuid: item.0)
+                            isSheetPresented = false
                         } label: {
                             Text(item.1)
                         }
@@ -131,7 +139,7 @@ final class SensorSelectingViewState: ObservableObject {
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSettingView()
-        SensorSelectingView()
+        SensorSelectingView(isSheetPresented: .constant(false))
     }
 }
 
