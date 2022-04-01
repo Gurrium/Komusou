@@ -22,7 +22,9 @@ struct SensorSettingView: View {
                 itemLabel: "スピードセンサー",
                 valueLabel: state.speedSensorName
             ) {
-                SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented)
+                SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented) {
+                    state.connectToSpeedSensor(uuid: $0)
+                }
             }
             // TODO: ケイデンスセンサー
         }
@@ -58,6 +60,7 @@ final class SensorSettingViewState: ObservableObject {
     @Published
     private(set) var speedSensorName = ""
 
+    private var bluetoothManager = BluetoothManager.shared
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -66,16 +69,22 @@ final class SensorSettingViewState: ObservableObject {
         }
         .store(in: &cancellables)
     }
+
+    func connectToSpeedSensor(uuid: UUID) {
+        bluetoothManager.connectToSpeedSensor(uuid: uuid)
+    }
 }
 
 struct SensorSelectingView: View {
     @ObservedObject
-    var state = SensorSelectingViewState()
+    private var state = SensorSelectingViewState()
     @Binding
     private var isSheetPresented: Bool
+    private var didSelectSensor: (UUID) -> Void
 
-    init(isSheetPresented: Binding<Bool>) {
+    init(isSheetPresented: Binding<Bool>, didSelectSensor: @escaping (UUID) -> Void) {
         _isSheetPresented = isSheetPresented
+        self.didSelectSensor = didSelectSensor
     }
 
     var body: some View {
@@ -85,7 +94,7 @@ struct SensorSelectingView: View {
                     ForEach(state.items, id: \.0) { item in
                         Button {
                             // TODO: 接続に成功したらsheetを閉じる
-                            state.connectToSpeedSensor(uuid: item.0)
+                            didSelectSensor(item.0)
                             isSheetPresented = false
                         } label: {
                             Text(item.1)
@@ -129,10 +138,6 @@ final class SensorSelectingViewState: ObservableObject {
 
     func stopScanningSensors() {
         bluetoothManager.stopScanningSensors()
-    }
-
-    func connectToSpeedSensor(uuid: UUID) {
-        bluetoothManager.connectToSpeedSensor(uuid: uuid)
     }
 }
 
