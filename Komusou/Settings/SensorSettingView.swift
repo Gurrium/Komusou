@@ -146,6 +146,11 @@ struct SensorSettingView_Previews: PreviewProvider {
 }
 
 final class BluetoothManager: NSObject {
+    enum ConnectingWithPeripheralError: Error {
+        case peripheralNotFound
+    }
+    typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
+
     static let shared = BluetoothManager()
     static private let kSpeedSensorKey = "speed_sensor_key"
 
@@ -177,6 +182,7 @@ final class BluetoothManager: NSObject {
     @Published
     private var isBluetoothEnabled = false
     private var isScanningPeripherals = false
+    private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
     private var cancellables = Set<AnyCancellable>()
 
     private let centralManager = CBCentralManager()
@@ -208,11 +214,17 @@ final class BluetoothManager: NSObject {
         centralManager.stopScan()
     }
 
-    func connectToSpeedSensor(uuid: UUID) {
-        guard let peripheral = discoveredPeripherals[uuid] else { return }
+    func connectToSpeedSensor(uuid: UUID) -> ConnectingWithPeripheralFuture {
+        guard let peripheral = discoveredPeripherals[uuid] else {
+            return .init { $0(.failure(.peripheralNotFound)) }
+        }
 
         speedSensorUUID = uuid
         centralManager.connect(peripheral)
+
+        return .init { [unowned self] promise in
+            self.speedSensorPromise = promise
+        }
     }
 }
 
@@ -229,6 +241,7 @@ extension BluetoothManager: CBCentralManagerDelegate {
         switch peripheral.identifier {
         case speedSensorUUID:
             speedSensor = peripheral
+            speedSensorPromise?(.success(()))
         default:
             break
         }
