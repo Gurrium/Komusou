@@ -60,7 +60,6 @@ final class SensorSettingViewState: ObservableObject {
     @Published
     private(set) var speedSensorName = ""
 
-    private var bluetoothManager = BluetoothManager.shared
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -71,7 +70,7 @@ final class SensorSettingViewState: ObservableObject {
     }
 
     func connectToSpeedSensor(uuid: UUID) {
-        bluetoothManager.connectToSpeedSensor(uuid: uuid)
+        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid)
     }
 }
 
@@ -125,26 +124,24 @@ final class SensorSelectingViewState: ObservableObject {
         }
     }
 
-    private var bluetoothManager = BluetoothManager.shared
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        bluetoothManager.$discoveredPeripherals.assign(to: &$sensors)
+        BluetoothManager.shared.$discoveredPeripherals.assign(to: &$sensors)
     }
 
     func startScanningSensors() {
-        bluetoothManager.startScanningSensors()
+        BluetoothManager.shared.startScanningSensors()
     }
 
     func stopScanningSensors() {
-        bluetoothManager.stopScanningSensors()
+        BluetoothManager.shared.stopScanningSensors()
     }
 }
 
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSettingView()
-        SensorSelectingView(isSheetPresented: .constant(false))
     }
 }
 
