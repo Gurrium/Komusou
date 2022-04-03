@@ -10,21 +10,17 @@ import CoreBluetooth
 import Combine
 
 struct SensorSettingView: View {
-    @State
-    private var isSpeedSensorSheetPresented = false
     @ObservedObject
     private var state = SensorSettingViewState()
 
     var body: some View {
         List {
             Row(
-                isSheetPresented: $isSpeedSensorSheetPresented,
+                isSheetPresented: $state.isSpeedSensorSheetPresented,
                 itemLabel: "スピードセンサー",
                 valueLabel: state.speedSensorName
             ) {
-                SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented) {
-                    state.connectToSpeedSensor(uuid: $0)
-                }
+                SensorSelectingView(didSelectSensor: state.connectToSpeedSensor(uuid:))
             }
             // TODO: ケイデンスセンサー
         }
@@ -59,42 +55,47 @@ struct SensorSettingView: View {
 final class SensorSettingViewState: ObservableObject {
     @Published
     private(set) var speedSensorName = ""
+    @Published
+    var isSpeedSensorSheetPresented = false
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        BluetoothManager.shared.$speedSensor.sink { [weak self] peripheral in
-            self?.speedSensorName = peripheral?.name ?? ""
-        }
-        .store(in: &cancellables)
+        BluetoothManager.shared.$connectedSpeedSensor.map { $0?.name ?? "" }.assign(to: &$speedSensorName)
     }
 
     func connectToSpeedSensor(uuid: UUID) {
-        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid)
+        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { result in
+            switch result {
+            case .failure:
+                // TODO: エラー処理
+                break
+            case .finished:
+                break
+            }
+        } receiveValue: { [unowned self] _ in
+            self.isSpeedSensorSheetPresented = false
+        }
+        .store(in: &cancellables)
     }
 }
 
 struct SensorSelectingView: View {
     @ObservedObject
     private var state = SensorSelectingViewState()
-    @Binding
-    private var isSheetPresented: Bool
     private var didSelectSensor: (UUID) -> Void
 
-    init(isSheetPresented: Binding<Bool>, didSelectSensor: @escaping (UUID) -> Void) {
-        _isSheetPresented = isSheetPresented
+    init(didSelectSensor: @escaping (UUID) -> Void) {
         self.didSelectSensor = didSelectSensor
     }
 
     var body: some View {
         List {
             Section {
-                if !state.items.isEmpty {
-                    ForEach(state.items, id: \.0) { item in
+                if !state.sensors.isEmpty {
+                    ForEach(state.sensors, id: \.0) { item in
                         Button {
-                            // TODO: 接続に成功したらsheetを閉じる
                             didSelectSensor(item.0)
-                            isSheetPresented = false
                         } label: {
                             Text(item.1)
                         }
@@ -115,19 +116,18 @@ struct SensorSelectingView: View {
 
 final class SensorSelectingViewState: ObservableObject {
     @Published
-    private var sensors = [UUID: CBPeripheral]()
-    var items: [(UUID, String)] {
-        sensors.compactMap { record in
-            guard let name = record.value.name else { return nil }
-
-            return (record.key, name)
-        }
-    }
+    var sensors: [(UUID, String)] = []
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        BluetoothManager.shared.$discoveredPeripherals.assign(to: &$sensors)
+        BluetoothManager.shared.$discoveredPeripherals.map { peripherals in
+            peripherals.compactMap { peripheral in
+                guard let name = peripheral.value.name else { return nil }
+
+                return (peripheral.key, name)
+            }
+        }.assign(to: &$sensors)
     }
 
     func startScanningSensors() {
@@ -146,9 +146,7 @@ struct SensorSettingView_Previews: PreviewProvider {
 }
 
 final class BluetoothManager: NSObject {
-    enum ConnectingWithPeripheralError: Error {
-        case peripheralNotFound
-    }
+    struct ConnectingWithPeripheralError: Error {}
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
     static let shared = BluetoothManager()
@@ -157,19 +155,19 @@ final class BluetoothManager: NSObject {
     @Published
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
     @Published
-    private(set) var speedSensor: CBPeripheral?
+    private(set) var connectedSpeedSensor: CBPeripheral?
 
-    private var speedSensorUUID: UUID? {
+    private var connectedSpeedSensorUUID: UUID? {
         get {
-            if let uuid = _speedSensorUUID { return uuid }
+            if let uuid = _connectedSpeedSensorUUID { return uuid }
 
             let retrieved = UUID(uuidString: userDefaults.string(forKey: Self.kSpeedSensorKey) ?? "")
-            _speedSensorUUID = retrieved
+            _connectedSpeedSensorUUID = retrieved
 
             return retrieved
         }
         set {
-            _speedSensorUUID = newValue
+            _connectedSpeedSensorUUID = newValue
 
             if let newValue = newValue {
                 userDefaults.set(newValue.uuidString, forKey: Self.kSpeedSensorKey)
@@ -178,10 +176,11 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-    private var _speedSensorUUID: UUID?
-    @Published
-    private var isBluetoothEnabled = false
-    private var isScanningPeripherals = false
+    private var _connectedSpeedSensorUUID: UUID?
+    private var connectingSpeedSensorUUID: UUID?
+    private var isBluetoothEnabled: Bool {
+        centralManager.state == .poweredOn
+    }
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
     private var cancellables = Set<AnyCancellable>()
 
@@ -191,47 +190,52 @@ final class BluetoothManager: NSObject {
     override init() {
         super.init()
 
+        // TODO: 起動時の処理
+        // Bluetoothの許可の確認
+        // 以前接続したセンサーに接続する
+
         centralManager.delegate = self
+        $connectedSpeedSensor.sink { [unowned self] sensor in
+            self.connectedSpeedSensorUUID = sensor?.identifier
+        }
+        .store(in: &cancellables)
+    }
+
+    deinit {
+        // TODO: disconnect
     }
 
     func startScanningSensors() {
-        guard !isScanningPeripherals else { return }
-        isScanningPeripherals = true
+        guard isBluetoothEnabled, !centralManager.isScanning else { return }
 
-        $isBluetoothEnabled
-            .first(where: { $0 })
-            .sink { [weak self] enabled in
-                if enabled {
-                    self?.centralManager.scanForPeripherals(withServices: nil, options: nil)
-                }
-            }
-            .store(in: &cancellables)
+        // TODO: デバッグが終わったら self.centralManager.scanForPeripherals(withServices: [.cyclingSpeedAndCadence], options: nil) にする
+        centralManager.scanForPeripherals(withServices: nil, options: nil)
     }
 
     func stopScanningSensors() {
-        isScanningPeripherals = true
-
+        discoveredPeripherals.removeAll()
         centralManager.stopScan()
     }
 
     func connectToSpeedSensor(uuid: UUID) -> ConnectingWithPeripheralFuture {
         guard let peripheral = discoveredPeripherals[uuid] else {
-            return .init { $0(.failure(.peripheralNotFound)) }
+            return .init { $0(.failure(.init())) }
         }
 
-        speedSensorUUID = uuid
+        if let speedSensor = connectedSpeedSensor {
+            centralManager.cancelPeripheralConnection(speedSensor)
+        }
+        connectingSpeedSensorUUID = uuid
         centralManager.connect(peripheral)
 
-        return .init { [unowned self] promise in
-            self.speedSensorPromise = promise
+        return .init { [weak self] promise in
+            self?.speedSensorPromise = promise
         }
     }
 }
 
 extension BluetoothManager: CBCentralManagerDelegate {
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        isBluetoothEnabled = central.state == .poweredOn
-    }
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {}
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         discoveredPeripherals[peripheral.identifier] = peripheral
@@ -239,9 +243,20 @@ extension BluetoothManager: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         switch peripheral.identifier {
-        case speedSensorUUID:
-            speedSensor = peripheral
+        case connectingSpeedSensorUUID:
+            connectingSpeedSensorUUID = nil
+            connectedSpeedSensor = peripheral
             speedSensorPromise?(.success(()))
+        default:
+            centralManager.cancelPeripheralConnection(peripheral)
+        }
+    }
+
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        switch peripheral.identifier {
+        case connectingSpeedSensorUUID:
+            connectingSpeedSensorUUID = nil
+            speedSensorPromise?(.failure(.init()))
         default:
             break
         }
