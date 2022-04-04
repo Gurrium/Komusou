@@ -20,7 +20,7 @@ struct SensorSettingView: View {
                 itemLabel: "スピードセンサー",
                 valueLabel: state.speedSensorName
             ) {
-                SensorSelectingView(didSelectSensor: state.connectToSpeedSensor(uuid:))
+                SensorSelectingView(didError: $state.didError, didSelectSensor: state.connectToSpeedSensor(uuid:))
             }
             // TODO: ケイデンスセンサー
         }
@@ -57,6 +57,8 @@ final class SensorSettingViewState: ObservableObject {
     private(set) var speedSensorName = ""
     @Published
     var isSpeedSensorSheetPresented = false
+    @Published
+    var didError = false
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -65,11 +67,10 @@ final class SensorSettingViewState: ObservableObject {
     }
 
     func connectToSpeedSensor(uuid: UUID) {
-        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { result in
+        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
             switch result {
             case .failure:
-                // TODO: エラー処理
-                break
+                self?.didError = true
             case .finished:
                 break
             }
@@ -84,8 +85,11 @@ struct SensorSelectingView: View {
     @ObservedObject
     private var state = SensorSelectingViewState()
     private var didSelectSensor: (UUID) -> Void
+    @Binding
+    private var didError: Bool
 
-    init(didSelectSensor: @escaping (UUID) -> Void) {
+    init(didError: Binding<Bool>, didSelectSensor: @escaping (UUID) -> Void) {
+        _didError = didError
         self.didSelectSensor = didSelectSensor
     }
 
@@ -109,6 +113,7 @@ struct SensorSelectingView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .alert("接続に失敗しました", isPresented: $didError) {}
         .onAppear(perform: state.startScanningSensors)
         .onDisappear(perform: state.stopScanningSensors)
     }
@@ -145,6 +150,7 @@ struct SensorSettingView_Previews: PreviewProvider {
     }
 }
 
+// TODO: モックできるようにする
 final class BluetoothManager: NSObject {
     struct ConnectingWithPeripheralError: Error {}
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
