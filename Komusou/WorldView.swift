@@ -5,8 +5,8 @@
 //  Created by gurrium on 2022/03/06.
 //
 
-import SwiftUI
 import SceneKit
+import SwiftUI
 
 final class WorldView: UIViewRepresentable {
     private let worldView: _WorldView
@@ -16,15 +16,15 @@ final class WorldView: UIViewRepresentable {
         worldView.build(speedSensor: speedSensor, cadenceSensor: cadenceSensor)
     }
 
-    func makeUIView(context: Context) -> _WorldView {
+    func makeUIView(context _: Context) -> _WorldView {
         worldView
     }
 
-    func updateUIView(_ uiView: _WorldView, context: Context) {}
+    func updateUIView(_: _WorldView, context _: Context) {}
 }
 
 final class _WorldView: UIView {
-    @IBOutlet weak var scnView: SCNView!
+    @IBOutlet var scnView: SCNView!
     private var controlPanel: ControlPanelView
 
     private var speedSensor: SpeedSensor!
@@ -33,12 +33,14 @@ final class _WorldView: UIView {
             controlPanel.render(speed: speed, cadence: cadence)
         }
     }
+
     private var cadenceSensor: CadenceSensor!
     private var cadence = 0.0 {
         didSet {
             controlPanel.render(speed: speed, cadence: cadence)
         }
-}
+    }
+
     private var box: SCNNode = {
         let box = SCNNode()
         box.geometry = SCNBox(width: 5, height: 2, length: 2, chamferRadius: 0)
@@ -46,6 +48,7 @@ final class _WorldView: UIView {
 
         return box
     }()
+
     let boxBase = SCNNode()
 
     func build(speedSensor: SpeedSensor, cadenceSensor: CadenceSensor) {
@@ -71,11 +74,11 @@ final class _WorldView: UIView {
 
     private func setupControlPanelView() {
         controlPanel.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(controlPanel)
+        addSubview(controlPanel)
 
         NSLayoutConstraint.activate([
-            controlPanel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16),
-            controlPanel.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor)
+            controlPanel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            controlPanel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
         ])
     }
 
@@ -99,7 +102,7 @@ final class _WorldView: UIView {
         boxBase.addChildNode(cameraNode)
         cameraNode.runAction(.group([
             .moveBy(x: -20, y: 20, z: 0, duration: 0),
-            .rotateBy(x: 0, y: -.pi / 2, z: -.pi / 6, duration: 0)
+            .rotateBy(x: 0, y: -.pi / 2, z: -.pi / 6, duration: 0),
         ]))
 
         let ambientLight = SCNLight()
@@ -115,7 +118,7 @@ final class _WorldView: UIView {
         scnView.scene?.rootNode.addChildNode(directionalLightNode)
         directionalLightNode.runAction(.group([
             .moveBy(x: -100, y: 100, z: 0, duration: 0),
-            .rotateBy(x: 0, y: -.pi / 4, z: -.pi / 4, duration: 0)
+            .rotateBy(x: 0, y: -.pi / 4, z: -.pi / 4, duration: 0),
         ]))
 
         scnView.scene = scene
@@ -123,7 +126,7 @@ final class _WorldView: UIView {
         scnView.allowsCameraControl = true
 
         #if DEBUG
-        scnView.showsStatistics = true
+            scnView.showsStatistics = true
         #endif
     }
 }

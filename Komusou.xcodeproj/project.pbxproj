@@ -181,6 +181,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E3178D7627D379730000DB0F /* Build configuration list for PBXNativeTarget "Komusou" */;
 			buildPhases = (
+				E3578A0927FC6BE2001C7397 /* ShellScript */,
 				E3178D4E27D379710000DB0F /* Sources */,
 				E3178D4F27D379710000DB0F /* Frameworks */,
 				E3178D5027D379710000DB0F /* Resources */,
@@ -301,6 +302,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E3578A0927FC6BE2001C7397 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "SDKROOT=(xcrun --sdk macosx --show-sdk-path)\n#swift package update #Uncomment this line temporarily to update the version used to the latest matching your BuildTools/Package.swift file\nswift run -c release --package-path BuildTools swiftformat \"$SRCROOT\" --swiftversion 5.0 --config .swiftformat\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E3178D4E27D379710000DB0F /* Sources */ = {

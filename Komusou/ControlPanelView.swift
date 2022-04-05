@@ -17,6 +17,7 @@ final class ControlPanelView: UIView {
 
         return formatter
     }()
+
     private static let cadenceFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .none
@@ -26,10 +27,11 @@ final class ControlPanelView: UIView {
 
         return formatter
     }()
+
 //    @IBOutlet weak var speedPanel: UIView!
-    @IBOutlet weak var speedLabel: UILabel!
+    @IBOutlet var speedLabel: UILabel!
 //    @IBOutlet weak var cadencePanel: UIView!
-    @IBOutlet weak var cadenceLabel: UILabel!
+    @IBOutlet var cadenceLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()

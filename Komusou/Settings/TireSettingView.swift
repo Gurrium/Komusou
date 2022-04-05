@@ -5,8 +5,8 @@
 //  Created by gurrium on 2022/03/09.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 struct TireSettingView: View {
     @Binding var tireSize: TireSize
@@ -15,7 +15,7 @@ struct TireSettingView: View {
     @FocusState var isCustomTireSizeStringFieldFocused: Bool
 
     init(tireSize: Binding<TireSize>) {
-        self._tireSize = tireSize
+        _tireSize = tireSize
 
         if case .custom(let circumference) = tireSize.wrappedValue {
             customTireSizeString = String(circumference)
@@ -25,7 +25,7 @@ struct TireSettingView: View {
             isTireCustomSize = false
         }
     }
-    
+
     var body: some View {
         List {
             Section {
@@ -43,7 +43,8 @@ struct TireSettingView: View {
                             .focused($isCustomTireSizeStringFieldFocused)
                             .onChange(of: customTireSizeString) { [old = customTireSizeString] new in
                                 if let size = Int(new),
-                                   new.count <= TireSize.significantDigits {
+                                   new.count <= TireSize.significantDigits
+                                {
                                     // 整数として解釈できる文字列
                                     tireSize = .custom(size)
                                 } else if new.isEmpty {

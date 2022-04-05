@@ -8,6 +8,6 @@
 import CoreBluetooth
 
 extension CBUUID {
-    static var cyclingSpeedAndCadence: Self { Self.init(string: "1816") }
-    static var cscMeasurement: Self { Self.init(string: "2a5b") }
+    static var cyclingSpeedAndCadence: Self { Self(string: "1816") }
+    static var cscMeasurement: Self { Self(string: "2a5b") }
 }

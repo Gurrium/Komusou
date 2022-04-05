@@ -5,9 +5,9 @@
 //  Created by gurrium on 2022/03/25.
 //
 
-import SwiftUI
-import CoreBluetooth
 import Combine
+import CoreBluetooth
+import SwiftUI
 
 struct SensorSettingView: View {
     @ObservedObject
@@ -70,7 +70,7 @@ final class SensorSettingViewState: ObservableObject {
         BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
             switch result {
             case .failure:
-                self?.didError = true
+                self.didError = true
             case .finished:
                 break
             }
@@ -156,7 +156,7 @@ final class BluetoothManager: NSObject {
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
     static let shared = BluetoothManager()
-    static private let kSpeedSensorKey = "speed_sensor_key"
+    private static let kSpeedSensorKey = "speed_sensor_key"
 
     @Published
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
@@ -182,11 +182,13 @@ final class BluetoothManager: NSObject {
             }
         }
     }
+
     private var _connectedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
     private var isBluetoothEnabled: Bool {
         centralManager.state == .poweredOn
     }
+
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
     private var cancellables = Set<AnyCancellable>()
 
@@ -241,13 +243,13 @@ final class BluetoothManager: NSObject {
 }
 
 extension BluetoothManager: CBCentralManagerDelegate {
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {}
+    func centralManagerDidUpdateState(_: CBCentralManager) {}
 
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    func centralManager(_: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any], rssi _: NSNumber) {
         discoveredPeripherals[peripheral.identifier] = peripheral
     }
 
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+    func centralManager(_: CBCentralManager, didConnect peripheral: CBPeripheral) {
         switch peripheral.identifier {
         case connectingSpeedSensorUUID:
             connectingSpeedSensorUUID = nil
@@ -258,7 +260,7 @@ extension BluetoothManager: CBCentralManagerDelegate {
         }
     }
 
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+    func centralManager(_: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error _: Error?) {
         switch peripheral.identifier {
         case connectingSpeedSensorUUID:
             connectingSpeedSensorUUID = nil
@@ -269,5 +271,4 @@ extension BluetoothManager: CBCentralManagerDelegate {
     }
 }
 
-extension BluetoothManager: CBPeripheralDelegate {
-}
+extension BluetoothManager: CBPeripheralDelegate {}
