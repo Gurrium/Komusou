@@ -160,9 +160,13 @@ final class BluetoothManager: NSObject {
 
     @Published
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
+
+    // MARK: Speed
+
+    @Published
+    private(set) var speedData: [UInt8]?
     @Published
     private(set) var connectedSpeedSensor: CBPeripheral?
-
     private var connectedSpeedSensorUUID: UUID? {
         get {
             if let uuid = _connectedSpeedSensorUUID { return uuid }
@@ -182,18 +186,17 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-
     private var _connectedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
-    private var isBluetoothEnabled: Bool {
-        centralManager.state == .poweredOn
-    }
-
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
-    private var cancellables = Set<AnyCancellable>()
 
     private let centralManager = CBCentralManager()
     private let userDefaults = UserDefaults.standard
+
+    private var isBluetoothEnabled: Bool {
+        centralManager.state == .poweredOn
+    }
+    private var cancellables = Set<AnyCancellable>()
 
     override init() {
         super.init()

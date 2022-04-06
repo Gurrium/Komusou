@@ -5,6 +5,7 @@
 //  Created by gurrium on 2022/03/16.
 //
 
+import Combine
 import CoreBluetooth
 import Foundation
 
@@ -12,26 +13,12 @@ final class BluetoothSpeedSensor: NSObject, SpeedSensor {
     // SpeedSensor
     var delegate: SpeedSensorDelegate?
 
-    // TODO: ケイデンスでも使うので一元管理する
-    // TODO: 複数のCBCentralManagerを作ってもいいならこのまま
-    private let centralManager = CBCentralManager()
-
-    private var isBluetoothEnabled = false {
-        didSet {
-            if isBluetoothEnabled {
-                centralManager.scanForPeripherals(withServices: [.cyclingSpeedAndCadence], options: nil)
-            }
-        }
-    }
-
-    private var connectedPeripheral: CBPeripheral?
     // speed measurement
     private var speed: Double = 0 {
         didSet {
             delegate?.onSpeedUpdate(speed)
         }
     }
-
     private var previousWheelEventTime: UInt16?
     private var previousCumulativeWheelRevolutions: UInt32?
     private var speedMeasurementPauseCounter = 0 {
@@ -41,60 +28,27 @@ final class BluetoothSpeedSensor: NSObject, SpeedSensor {
             }
         }
     }
+    private var cancellables = Set<AnyCancellable>()
 
     override init() {
         super.init()
 
-        centralManager.delegate = self
-    }
-}
+        BluetoothManager.shared.$speedData.sink { [unowned self] data in
+            guard let data = data else { return }
 
-extension BluetoothSpeedSensor: CBCentralManagerDelegate {
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        isBluetoothEnabled = central.state == .poweredOn
-    }
+            let value = [UInt8](data)
+            guard (value[0] & 0b0001) > 0 else { return }
 
-    func centralManager(_: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any], rssi _: NSNumber) {
-        // ここで参照を保持しないと破棄される
-        connectedPeripheral = peripheral
+            // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
+            if let retrieved = self.parseSpeed(from: value) {
+                self.speedMeasurementPauseCounter = 0
 
-        centralManager.connect(peripheral, options: nil)
-    }
-
-    func centralManager(_: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        peripheral.delegate = self
-        peripheral.discoverServices([.cyclingSpeedAndCadence])
-    }
-}
-
-extension BluetoothSpeedSensor: CBPeripheralDelegate {
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices _: Error?) {
-        guard let service = peripheral.services?.first(where: { $0.uuid == .cyclingSpeedAndCadence }) else { return }
-
-        peripheral.discoverCharacteristics([.cscMeasurement], for: service)
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error _: Error?) {
-        guard let characteristic = service.characteristics?.first(where: { $0.uuid == .cscMeasurement }),
-              characteristic.properties.contains(.notify) else { return }
-
-        peripheral.setNotifyValue(true, for: characteristic)
-    }
-
-    func peripheral(_: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error _: Error?) {
-        guard let data = characteristic.value else { return }
-
-        let value = [UInt8](data)
-        guard (value[0] & 0b0001) > 0 else { return }
-
-        // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
-        if let retrieved = parseSpeed(from: value) {
-            speedMeasurementPauseCounter = 0
-
-            speed = retrieved
-        } else {
-            speedMeasurementPauseCounter += 1
+                self.speed = retrieved
+            } else {
+                self.speedMeasurementPauseCounter += 1
+            }
         }
+        .store(in: &cancellables)
     }
 
     private func parseSpeed(from value: [UInt8]) -> Double? {

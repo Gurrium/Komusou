@@ -1,2 +1,5 @@
 --ranges no-space
 --patternlet inline
+
+--disable \
+blankLinesBetweenScopes
