@@ -167,17 +167,17 @@ final class BluetoothManager: NSObject {
     private(set) var speedData: [UInt8]?
     @Published
     private(set) var connectedSpeedSensor: CBPeripheral?
-    private var connectedSpeedSensorUUID: UUID? {
+    private var savedSpeedSensorUUID: UUID? {
         get {
-            if let uuid = _connectedSpeedSensorUUID { return uuid }
+            if let uuid = _savedSpeedSensorUUID { return uuid }
 
             let retrieved = UUID(uuidString: userDefaults.string(forKey: Self.kSpeedSensorKey) ?? "")
-            _connectedSpeedSensorUUID = retrieved
+            _savedSpeedSensorUUID = retrieved
 
             return retrieved
         }
         set {
-            _connectedSpeedSensorUUID = newValue
+            _savedSpeedSensorUUID = newValue
 
             if let newValue = newValue {
                 userDefaults.set(newValue.uuidString, forKey: Self.kSpeedSensorKey)
@@ -186,7 +186,7 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-    private var _connectedSpeedSensorUUID: UUID?
+    private var _savedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
 
@@ -203,11 +203,18 @@ final class BluetoothManager: NSObject {
 
         // TODO: 起動時の処理
         // Bluetoothの許可の確認
-        // 以前接続したセンサーに接続する
 
         centralManager.delegate = self
+
+        if let savedSpeedSensorUUID = savedSpeedSensorUUID,
+           let speedSensor = centralManager.retrievePeripherals(withIdentifiers: [savedSpeedSensorUUID]).first
+        {
+            centralManager.connect(speedSensor)
+        }
+        // TODO: ケイデンスセンサー
+
         $connectedSpeedSensor.sink { [unowned self] sensor in
-            self.connectedSpeedSensorUUID = sensor?.identifier
+            self.savedSpeedSensorUUID = sensor?.identifier
         }
         .store(in: &cancellables)
     }
