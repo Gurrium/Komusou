@@ -221,6 +221,10 @@ final class BluetoothManager: NSObject {
 
     deinit {
         // TODO: disconnect
+        // ケイデンスセンサーもやる
+        guard let connectedSpeedSensor = connectedSpeedSensor else { return }
+
+        centralManager.cancelPeripheralConnection(connectedSpeedSensor)
     }
 
     func startScanningSensors() {
