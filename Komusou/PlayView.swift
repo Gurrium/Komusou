@@ -25,7 +25,7 @@ struct PlayView: View {
             }
         }
         .sheet(isPresented: $isSettingsPresented) {
-            SettingsView(state: .init())
+            SettingsView()
         }
     }
 }

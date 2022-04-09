@@ -150,13 +150,23 @@ struct SensorSettingView_Previews: PreviewProvider {
     }
 }
 
-// TODO: モックできるようにする
+extension UUID: RawRepresentable {
+    public init?(rawValue: String) {
+        self.init(uuidString: rawValue)
+    }
+
+    public var rawValue: String {
+        uuidString
+    }
+}
+
+// TODO: モックできるようにする、別のファイルに移す
 final class BluetoothManager: NSObject {
     struct ConnectingWithPeripheralError: Error {}
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
     static let shared = BluetoothManager()
-    private static let kSpeedSensorKey = "speed_sensor_key"
+    private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
 
     @Published
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
@@ -164,35 +174,26 @@ final class BluetoothManager: NSObject {
     // MARK: Speed
 
     @Published
-    private(set) var speedData: [UInt8]?
+    private(set) var speed: Double?
     @Published
     private(set) var connectedSpeedSensor: CBPeripheral?
-    private var savedSpeedSensorUUID: UUID? {
-        get {
-            if let uuid = _savedSpeedSensorUUID { return uuid }
-
-            let retrieved = UUID(uuidString: userDefaults.string(forKey: Self.kSpeedSensorKey) ?? "")
-            _savedSpeedSensorUUID = retrieved
-
-            return retrieved
-        }
-        set {
-            _savedSpeedSensorUUID = newValue
-
-            if let newValue = newValue {
-                userDefaults.set(newValue.uuidString, forKey: Self.kSpeedSensorKey)
-            } else {
-                userDefaults.removeObject(forKey: Self.kSpeedSensorKey)
+    private var previousWheelEventTime: UInt16?
+    private var previousCumulativeWheelRevolutions: UInt32?
+    private var speedMeasurementPauseCounter = 0 {
+        didSet {
+            if speedMeasurementPauseCounter > 2 {
+                speed = 0
             }
         }
     }
-    private var _savedSpeedSensorUUID: UUID?
+    @AppStorage(kTireSizeKey)
+    var tireSize: TireSize = .standard(.iso25_622)
+    @AppStorage(kSavedSpeedSensorUUIDKey)
+    private var savedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
 
     private let centralManager = CBCentralManager()
-    private let userDefaults = UserDefaults.standard
-
     private var isBluetoothEnabled: Bool {
         centralManager.state == .poweredOn
     }
@@ -269,6 +270,9 @@ extension BluetoothManager: CBCentralManagerDelegate {
             connectingSpeedSensorUUID = nil
             connectedSpeedSensor = peripheral
             speedSensorPromise?(.success(()))
+
+            peripheral.delegate = self
+            peripheral.discoverServices([.cyclingSpeedAndCadence])
         default:
             centralManager.cancelPeripheralConnection(peripheral)
         }
@@ -285,4 +289,60 @@ extension BluetoothManager: CBCentralManagerDelegate {
     }
 }
 
-extension BluetoothManager: CBPeripheralDelegate {}
+extension BluetoothManager: CBPeripheralDelegate {
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices _: Error?) {
+        guard let service = peripheral.services?.first(where: { $0.uuid == .cyclingSpeedAndCadence }) else { return }
+
+        peripheral.discoverCharacteristics([.cscMeasurement], for: service)
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error _: Error?) {
+        guard let characteristic = service.characteristics?.first(where: { $0.uuid == .cscMeasurement }),
+              characteristic.properties.contains(.notify) else { return }
+
+        peripheral.setNotifyValue(true, for: characteristic)
+    }
+
+    func peripheral(_: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error _: Error?) {
+        guard let data = characteristic.value else { return }
+
+        let value = [UInt8](data)
+        guard (value[0] & 0b0010) > 0 else { return }
+
+        // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
+        if let retrieved = parseSpeed(from: value) {
+            speedMeasurementPauseCounter = 0
+
+            speed = retrieved
+        } else {
+            speedMeasurementPauseCounter += 1
+        }
+    }
+
+    private func parseSpeed(from value: [UInt8]) -> Double? {
+        let cumulativeWheelRevolutions = (UInt32(value[4]) << 24) + (UInt32(value[3]) << 16) + (UInt32(value[2]) << 8) + UInt32(value[1])
+        let wheelEventTime = (UInt16(value[6]) << 8) + UInt16(value[5])
+
+        defer {
+            previousCumulativeWheelRevolutions = cumulativeWheelRevolutions
+            previousWheelEventTime = wheelEventTime
+        }
+
+        guard let previousCumulativeWheelRevolutions = previousCumulativeWheelRevolutions,
+              let previousWheelEventTime = previousWheelEventTime else { return nil }
+
+        let duration: UInt16
+
+        if previousWheelEventTime > wheelEventTime {
+            duration = UInt16((UInt32(wheelEventTime) + UInt32(UInt16.max) + 1) - UInt32(previousWheelEventTime))
+        } else {
+            duration = wheelEventTime - previousWheelEventTime
+        }
+
+        guard duration > 0 else { return nil }
+
+        let revolutionsPerSec = Double(cumulativeWheelRevolutions - previousCumulativeWheelRevolutions) / (Double(duration) / 1024)
+
+        return revolutionsPerSec * Double(tireSize.circumference) * 3600 / 1_000_000 // [km/h]
+    }
+}
