@@ -36,8 +36,8 @@ final class ControlPanelView: UIView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        speedLabel.text = ""
-        cadenceLabel.text = ""
+        speedLabel.text = speedString(from: 0)
+        cadenceLabel.text = cadenceString(from: 0)
 
 //        speedPanel.clipsToBounds = true
 //        speedPanel.layer.cornerRadius = 64
@@ -46,7 +46,15 @@ final class ControlPanelView: UIView {
     }
 
     func render(speed: Double, cadence: Double) {
-        speedLabel.text = "\(Self.speedFormatter.string(from: .init(value: speed))!)[km/h]"
-        cadenceLabel.text = "\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]" // km/hと合わせてr/mにしたい気持ちもあるが一般的な表記でないので…
+        speedLabel.text = speedString(from: speed)
+        cadenceLabel.text = cadenceString(from: cadence)
+    }
+
+    private func speedString(from speed: Double) -> String {
+        "\(Self.speedFormatter.string(from: .init(value: speed))!)[km/h]"
+    }
+
+    private func cadenceString(from cadence: Double) -> String {
+        "\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]" // km/hと合わせてr/mにしたい気持ちもあるが一般的な表記でないので…
     }
 }
