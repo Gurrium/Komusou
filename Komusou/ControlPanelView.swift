@@ -28,9 +28,7 @@ final class ControlPanelView: UIView {
         return formatter
     }()
 
-//    @IBOutlet weak var speedPanel: UIView!
     @IBOutlet var speedLabel: UILabel!
-//    @IBOutlet weak var cadencePanel: UIView!
     @IBOutlet var cadenceLabel: UILabel!
 
     override func awakeFromNib() {
@@ -38,11 +36,6 @@ final class ControlPanelView: UIView {
 
         speedLabel.text = speedString(from: 0)
         cadenceLabel.text = cadenceString(from: 0)
-
-//        speedPanel.clipsToBounds = true
-//        speedPanel.layer.cornerRadius = 64
-//        cadencePanel.clipsToBounds = true
-//        cadencePanel.layer.cornerRadius = 64
     }
 
     func render(speed: Double, cadence: Double) {
