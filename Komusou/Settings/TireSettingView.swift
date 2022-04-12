@@ -103,7 +103,7 @@ struct TireSettingView_Previews: PreviewProvider {
     }
 }
 
-enum TireSize: Codable, RawRepresentable {
+enum TireSize: RawRepresentable {
     static let significantDigits = 4
 
     init?(rawValue: String) {
@@ -116,7 +116,7 @@ enum TireSize: Codable, RawRepresentable {
         }
     }
 
-    var rawValue: String { label }
+    var rawValue: String { "\(circumference)" }
 
     case standard(StandardTireSize)
     case custom(Int)
