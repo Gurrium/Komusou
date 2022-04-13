@@ -14,5 +14,5 @@ protocol SpeedSensorDelegate: AnyObject {
 }
 
 protocol SpeedSensor: AnyObject {
-    var delegate: SpeedSensorDelegate? { get set }
+    var speed: Published<Double?>.Publisher! { get }
 }

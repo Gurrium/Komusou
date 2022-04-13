@@ -10,25 +10,14 @@ import CoreBluetooth
 import Foundation
 
 final class BluetoothSpeedSensor: NSObject, SpeedSensor {
-    // SpeedSensor
-    var delegate: SpeedSensorDelegate? // TODO: これも@Publishedでいいのでは？
-
-    // speed measurement
-    private var speed: Double = 0 {
-        didSet {
-            delegate?.onSpeedUpdate(speed)
-        }
-    }
-    private var cancellables = Set<AnyCancellable>()
+    var speed: Published<Double?>.Publisher!
+    @Published
+    private var _speed: Double?
 
     override init() {
         super.init()
 
-        BluetoothManager.shared.$speed
-            .compactMap { $0 }
-            .sink { [unowned self] speed in
-                self.speed = speed
-            }
-            .store(in: &cancellables)
+        speed = $_speed
+        BluetoothManager.shared.$speed.assign(to: &$_speed)
     }
 }

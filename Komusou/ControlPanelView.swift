@@ -38,8 +38,11 @@ final class ControlPanelView: UIView {
         cadenceLabel.text = cadenceString(from: 0)
     }
 
-    func render(speed: Double, cadence: Double) {
+    func render(speed: Double) {
         speedLabel.text = speedString(from: speed)
+    }
+
+    func render(cadence: Double) {
         cadenceLabel.text = cadenceString(from: cadence)
     }
 

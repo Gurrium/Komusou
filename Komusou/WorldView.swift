@@ -5,6 +5,7 @@
 //  Created by gurrium on 2022/03/06.
 //
 
+import Combine
 import SceneKit
 import SwiftUI
 
@@ -28,18 +29,17 @@ final class _WorldView: UIView {
     private var controlPanel: ControlPanelView
 
     private var speedSensor: SpeedSensor!
-    private var speed = 0.0 {
-        didSet {
-            controlPanel.render(speed: speed, cadence: cadence)
-        }
-    }
+    private var speed = 0.0
+    private let wheelCircumference = 2048 // TODO: 可変にする
+    private let movingKey = "movingAction"
 
-    private var cadenceSensor: CadenceSensor!
-    private var cadence = 0.0 {
-        didSet {
-            controlPanel.render(speed: speed, cadence: cadence)
-        }
-    }
+    // TODO: スピードに揃える
+//    private var cadenceSensor: CadenceSensor!
+//    private var cadence = 0.0 {
+//        didSet {
+//            controlPanel.render(speed: speed, cadence: cadence)
+//        }
+//    }
 
     private var box: SCNNode = {
         let box = SCNNode()
@@ -48,15 +48,24 @@ final class _WorldView: UIView {
 
         return box
     }()
+    private var cancellables = Set<AnyCancellable>()
 
     let boxBase = SCNNode()
 
-    func build(speedSensor: SpeedSensor, cadenceSensor: CadenceSensor) {
+    func build(speedSensor: SpeedSensor, cadenceSensor _: CadenceSensor) {
         self.speedSensor = speedSensor
-        self.cadenceSensor = cadenceSensor
+//        self.cadenceSensor = cadenceSensor
 
-        self.speedSensor.delegate = self
-        self.cadenceSensor.delegate = self
+        self.speedSensor.speed
+            .compactMap { $0 }
+            .sink { [unowned self] speed in
+                boxBase.removeAction(forKey: movingKey)
+                boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: movingKey)
+
+                controlPanel.render(speed: speed)
+            }
+            .store(in: &cancellables)
+//        self.cadenceSensor.delegate = self
 
         setupViews()
     }
@@ -131,25 +140,13 @@ final class _WorldView: UIView {
     }
 }
 
-extension _WorldView: SpeedSensorDelegate {
-    var wheelCircumference: Int { 2048 }
-    var movingKey: String { "movingAction" }
-
-    func onSpeedUpdate(_ speed: Double) {
-        boxBase.removeAction(forKey: movingKey)
-        boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: movingKey)
-
-        self.speed = speed
-    }
-}
-
-extension _WorldView: CadenceSensorDelegate {
-    var rotatingKey: String { "rotatingAction" }
-
-    func onCadenceUpdate(_ cadence: Double) {
-        box.removeAction(forKey: rotatingKey)
-        box.runAction(.repeatForever(.rotateBy(x: cadence, y: 0, z: 0, duration: 1)), forKey: rotatingKey)
-
-        self.cadence = cadence
-    }
-}
+// extension _WorldView: CadenceSensorDelegate {
+//    var rotatingKey: String { "rotatingAction" }
+//
+//    func onCadenceUpdate(_ cadence: Double) {
+//        box.removeAction(forKey: rotatingKey)
+//        box.runAction(.repeatForever(.rotateBy(x: cadence, y: 0, z: 0, duration: 1)), forKey: rotatingKey)
+//
+//        self.cadence = cadence
+//    }
+// }

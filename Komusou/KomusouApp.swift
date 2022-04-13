@@ -5,6 +5,7 @@
 //  Created by gurrium on 2022/03/05.
 //
 
+import Combine
 import SwiftUI
 
 // TODO:
@@ -27,9 +28,13 @@ struct KomusouApp: App {
 }
 
 final class MockSpeedSensor: SpeedSensor {
-    var delegate: SpeedSensorDelegate?
+    var speed: Published<Double?>.Publisher!
+    @Published
+    private var _speed: Double?
 
     init() {
+        speed = $_speed
+
         DispatchQueue.global().async { [weak self] in
             self?.scheduleUpdate()
         }
@@ -39,7 +44,7 @@ final class MockSpeedSensor: SpeedSensor {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             let speed = Double((0...60).randomElement()!) / Double((1...60).randomElement()!)
             print(speed)
-            self?.delegate?.onSpeedUpdate(speed)
+            self?._speed = speed
 
             self?.scheduleUpdate()
         }
