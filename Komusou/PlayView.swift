@@ -27,6 +27,12 @@ struct PlayView: View {
         .sheet(isPresented: $isSettingsPresented) {
             SettingsView()
         }
+//        .alert("Bluetoothを有効にしてください", isPresented: .constant(BluetoothManager.shared.isBluetoothEnabled)) {
+//            // TODO: 設定画面に飛ばす
+//            Button("OK") {
+//                print("TODO: 設定画面に飛ばす")
+//            }
+//        } message: {}
     }
 }
 

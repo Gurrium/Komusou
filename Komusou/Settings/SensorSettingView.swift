@@ -168,6 +168,9 @@ final class BluetoothManager: NSObject {
     static let shared = BluetoothManager()
     private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
 
+    var isBluetoothEnabled: Bool {
+        centralManager.state == .poweredOn
+    }
     @Published
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
 
@@ -194,16 +197,12 @@ final class BluetoothManager: NSObject {
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
 
     private let centralManager = CBCentralManager()
-    private var isBluetoothEnabled: Bool {
-        centralManager.state == .poweredOn
-    }
     private var cancellables = Set<AnyCancellable>()
 
     override init() {
         super.init()
 
-        // TODO: 起動時の処理
-        // Bluetoothの許可の確認
+        // TODO: Bluetoothが有効にされているか確認する/ダイアログを出す
 
         centralManager.delegate = self
 
