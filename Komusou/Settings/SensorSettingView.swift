@@ -168,9 +168,8 @@ final class BluetoothManager: NSObject {
     static let shared = BluetoothManager()
     private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
 
-    var isBluetoothEnabled: Bool {
-        centralManager.state == .poweredOn
-    }
+    @Published
+    private(set) var isBluetoothEnabled = false
     @Published
     private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
 
@@ -257,7 +256,9 @@ final class BluetoothManager: NSObject {
 }
 
 extension BluetoothManager: CBCentralManagerDelegate {
-    func centralManagerDidUpdateState(_: CBCentralManager) {}
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        isBluetoothEnabled = central.state == .poweredOn
+    }
 
     func centralManager(_: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any], rssi _: NSNumber) {
         discoveredPeripherals[peripheral.identifier] = peripheral

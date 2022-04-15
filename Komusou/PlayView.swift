@@ -8,31 +8,38 @@
 import SwiftUI
 
 struct PlayView: View {
-    @State var isSettingsPresented = false
+    @State
+    var isSettingsPresented = false
+    @State
+    private var isBluetoothEnabled = BluetoothManager.shared.isBluetoothEnabled
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            WorldView(speedSensor: KomusouApp.speedSensor, cadenceSensor: KomusouApp.cadenceSensor)
-                .edgesIgnoringSafeArea(.all)
-            Button {
-                isSettingsPresented = true
-            } label: {
-                Image(systemName: "gearshape")
-                    .resizable()
-                    .padding(8)
-                    .frame(width: 44, height: 44)
-                    .foregroundColor(.black)
+        Group {
+            if isBluetoothEnabled {
+                ZStack(alignment: .topTrailing) {
+                    WorldView(speedSensor: KomusouApp.speedSensor, cadenceSensor: KomusouApp.cadenceSensor)
+                        .edgesIgnoringSafeArea(.all)
+                    Button {
+                        isSettingsPresented = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .resizable()
+                            .padding(8)
+                            .frame(width: 44, height: 44)
+                            .foregroundColor(.black)
+                    }
+                }
+                .sheet(isPresented: $isSettingsPresented) {
+                    SettingsView()
+                }
+            } else {
+                Text("Bluetoothを有効にしてください")
+                // TODO: 設定画面に飛ばす
             }
         }
-        .sheet(isPresented: $isSettingsPresented) {
-            SettingsView()
+        .onReceive(BluetoothManager.shared.$isBluetoothEnabled) { isBluetoothEnabled in
+            self.isBluetoothEnabled = isBluetoothEnabled
         }
-//        .alert("Bluetoothを有効にしてください", isPresented: .constant(BluetoothManager.shared.isBluetoothEnabled)) {
-//            // TODO: 設定画面に飛ばす
-//            Button("OK") {
-//                print("TODO: 設定画面に飛ばす")
-//            }
-//        } message: {}
     }
 }
 
