@@ -29,12 +29,17 @@ struct PlayView: View {
                             .foregroundColor(.black)
                     }
                 }
+
                 .sheet(isPresented: $isSettingsPresented) {
                     SettingsView()
                 }
             } else {
-                Text("Bluetoothを有効にしてください")
-                // TODO: 設定画面に飛ばす
+                VStack(spacing: 16) {
+                    Text("Bluetoothを有効にしてください")
+                    Button("設定画面を開く") {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    }
+                }
             }
         }
         .onReceive(BluetoothManager.shared.$isBluetoothEnabled) { isBluetoothEnabled in
