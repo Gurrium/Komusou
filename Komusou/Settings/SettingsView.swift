@@ -32,7 +32,7 @@ struct SettingsView: View {
                     HStack {
                         Text("バージョン")
                         Spacer()
-                        Text("0.1")
+                        Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String)
                             .foregroundColor(.secondary)
                     }
                 }
