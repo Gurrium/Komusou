@@ -201,8 +201,6 @@ final class BluetoothManager: NSObject {
     override init() {
         super.init()
 
-        // TODO: Bluetoothが有効にされているか確認する/ダイアログを出す
-
         centralManager.delegate = self
 
         if let savedSpeedSensorUUID = savedSpeedSensorUUID,
@@ -219,7 +217,7 @@ final class BluetoothManager: NSObject {
     }
 
     deinit {
-        // TODO: disconnect
+        // TODO:
         // ケイデンスセンサーもやる
         guard let connectedSpeedSensor = connectedSpeedSensor else { return }
 
@@ -310,7 +308,7 @@ extension BluetoothManager: CBPeripheralDelegate {
         guard (value[0] & 0b0010) > 0 else { return }
 
         // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
-        if let retrieved = parseSpeed(from: value) {
+        if let retrieved = calculateSpeed(from: value) {
             speedMeasurementPauseCounter = 0
 
             speed = retrieved
@@ -319,7 +317,7 @@ extension BluetoothManager: CBPeripheralDelegate {
         }
     }
 
-    private func parseSpeed(from value: [UInt8]) -> Double? {
+    private func calculateSpeed(from value: [UInt8]) -> Double? {
         let cumulativeWheelRevolutions = (UInt32(value[4]) << 24) + (UInt32(value[3]) << 16) + (UInt32(value[2]) << 8) + UInt32(value[1])
         let wheelEventTime = (UInt16(value[6]) << 8) + UInt16(value[5])
 

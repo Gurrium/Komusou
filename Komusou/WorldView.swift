@@ -30,7 +30,6 @@ final class _WorldView: UIView {
 
     private var speedSensor: SpeedSensor!
     private var speed = 0.0
-    private let wheelCircumference = 2048 // TODO: 可変にする
     private let movingKey = "movingAction"
 
     // TODO: スピードに揃える
