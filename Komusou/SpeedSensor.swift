@@ -7,12 +7,6 @@
 
 import Foundation
 
-protocol SpeedSensorDelegate: AnyObject {
-    var wheelCircumference: Int { get }
-
-    func onSpeedUpdate(_ speed: Double)
-}
-
 protocol SpeedSensor: AnyObject {
     var speed: Published<Double?>.Publisher! { get }
 }
