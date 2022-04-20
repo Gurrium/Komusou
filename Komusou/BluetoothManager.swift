@@ -10,13 +10,26 @@ import CoreBluetooth
 import Foundation
 import struct SwiftUI.AppStorage
 
+protocol CBCentralManagerRequirement: AnyObject {
+    var delegate: CBCentralManagerDelegate? { get set }
+    var isScanning: Bool { get }
+
+    func connect(_ peripheral: CBPeripheral, options: [String : Any]?)
+    func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String : Any]?)
+    func stopScan()
+    func retrievePeripherals(withIdentifiers: [UUID]) -> [CBPeripheral]
+    func cancelPeripheralConnection(_ identifier: CBPeripheral)
+}
+
+extension CBCentralManager: CBCentralManagerRequirement {}
+
 // TODO: テストしたい
-// TODO: モックできるようにする
+// TODO: Bluetooth部分をモックできるようにする?
 final class BluetoothManager: NSObject {
     struct ConnectingWithPeripheralError: Error {}
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
-    static let shared = BluetoothManager()
+    static let shared = BluetoothManager(centralManager: CBCentralManager())
     private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
 
     @Published
@@ -46,18 +59,20 @@ final class BluetoothManager: NSObject {
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
 
-    private let centralManager = CBCentralManager()
+    private let centralManager: CBCentralManagerRequirement
     private var cancellables = Set<AnyCancellable>()
 
-    override init() {
+    init(centralManager: CBCentralManagerRequirement) {
+        self.centralManager = centralManager
+
         super.init()
 
-        centralManager.delegate = self
+        self.centralManager.delegate = self
 
         if let savedSpeedSensorUUID = savedSpeedSensorUUID,
-           let speedSensor = centralManager.retrievePeripherals(withIdentifiers: [savedSpeedSensorUUID]).first
+           let speedSensor = self.centralManager.retrievePeripherals(withIdentifiers: [savedSpeedSensorUUID]).first
         {
-            centralManager.connect(speedSensor)
+            self.centralManager.connect(speedSensor, options: nil)
         }
         // TODO: ケイデンスセンサー
 
@@ -96,7 +111,7 @@ final class BluetoothManager: NSObject {
             centralManager.cancelPeripheralConnection(speedSensor)
         }
         connectingSpeedSensorUUID = uuid
-        centralManager.connect(peripheral)
+        centralManager.connect(peripheral, options: nil)
 
         return .init { [weak self] promise in
             self?.speedSensorPromise = promise
