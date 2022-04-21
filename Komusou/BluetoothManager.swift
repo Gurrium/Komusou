@@ -14,8 +14,8 @@ protocol CBCentralManagerRequirement: AnyObject {
     var delegate: CBCentralManagerDelegate? { get set }
     var isScanning: Bool { get }
 
-    func connect(_ peripheral: CBPeripheral, options: [String : Any]?)
-    func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String : Any]?)
+    func connect(_ peripheral: CBPeripheral, options: [String: Any]?)
+    func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String: Any]?)
     func stopScan()
     func retrievePeripherals(withIdentifiers: [UUID]) -> [CBPeripheral]
     func cancelPeripheralConnection(_ identifier: CBPeripheral)

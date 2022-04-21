@@ -6,6 +6,7 @@
 //
 
 import Combine
+import CoreBluetooth
 import SwiftUI
 
 struct SensorSettingView: View {
@@ -19,7 +20,8 @@ struct SensorSettingView: View {
                 itemLabel: "スピードセンサー",
                 valueLabel: state.speedSensorName
             ) {
-                SensorSelectingView(didError: $state.didError, didSelectSensor: state.connectToSpeedSensor(uuid:))
+                SensorSelectingView()
+//                SensorSelectingView(didError: $state.didError, didSelectSensor: state.connectToSpeedSensor(uuid:))
             }
             // TODO: ケイデンスセンサー
         }
@@ -80,27 +82,82 @@ final class SensorSettingViewState: ObservableObject {
     }
 }
 
-struct SensorSelectingView: View {
-    @ObservedObject
-    private var state = SensorSelectingViewState()
-    private var didSelectSensor: (UUID) -> Void
-    @Binding
-    private var didError: Bool
+// struct SensorSelectingView: View {
+//    @ObservedObject
+//    private var state = SensorSelectingViewState()
+//    private var didSelectSensor: (UUID) -> Void
+//    @Binding
+//    private var didError: Bool
+//
+//    init(didError: Binding<Bool>, didSelectSensor: @escaping (UUID) -> Void) {
+//        _didError = didError
+//        self.didSelectSensor = didSelectSensor
+//    }
+//
+//    var body: some View {
+//        List {
+//            Section {
+//                if !state.sensors.isEmpty {
+//                    ForEach(state.sensors, id: \.0) { item in
+//                        Button {
+//                            didSelectSensor(item.0)
+//                        } label: {
+//                            Text(item.1)
+//                        }
+//                    }
+//                }
+//            } header: {
+//                HStack(spacing: 8) {
+//                    Text("センサー")
+//                    ProgressView()
+//                }
+//            }
+//        }
+//        .listStyle(.insetGrouped)
+//        .alert("接続に失敗しました", isPresented: $didError) {}
+//        .onAppear(perform: state.startScanningSensors)
+//        .onDisappear(perform: state.stopScanningSensors)
+//    }
+// }
+//
+// final class SensorSelectingViewState: ObservableObject {
+//    @Published
+//    var sensors: [(UUID, String)] = []
+//
+//    private var cancellables = Set<AnyCancellable>()
+//
+//    init() {
+//        BluetoothManager.shared.$discoveredPeripherals.map { peripherals in
+//            peripherals.compactMap { peripheral in
+//                guard let name = peripheral.value.name else { return nil }
+//
+//                return (peripheral.key, name)
+//            }
+//        }.assign(to: &$sensors)
+//    }
+//
+//    func startScanningSensors() {
+//        BluetoothManager.shared.startScanningSensors()
+//    }
+//
+//    func stopScanningSensors() {
+//        BluetoothManager.shared.stopScanningSensors()
+//    }
+// }
 
-    init(didError: Binding<Bool>, didSelectSensor: @escaping (UUID) -> Void) {
-        _didError = didError
-        self.didSelectSensor = didSelectSensor
-    }
+struct SensorSelectingView: View {
+    @State
+    var sensors: [(UUID, String)] = []
 
     var body: some View {
         List {
             Section {
-                if !state.sensors.isEmpty {
-                    ForEach(state.sensors, id: \.0) { item in
+                if !sensors.isEmpty {
+                    ForEach(sensors, id: \.0) { sensor in
                         Button {
-                            didSelectSensor(item.0)
+                            print(sensor.0)
                         } label: {
-                            Text(item.1)
+                            Text(sensor.1)
                         }
                     }
                 }
@@ -111,41 +168,24 @@ struct SensorSelectingView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
-        .alert("接続に失敗しました", isPresented: $didError) {}
-        .onAppear(perform: state.startScanningSensors)
-        .onDisappear(perform: state.stopScanningSensors)
-    }
-}
+        .onReceive(BluetoothManager.shared.$discoveredPeripherals) {
+            sensors = $0.compactMap { key, value -> (UUID, String)? in
+                guard let name = value.name,
+                      !name.isEmpty else { return nil }
 
-final class SensorSelectingViewState: ObservableObject {
-    @Published
-    var sensors: [(UUID, String)] = []
-
-    private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        BluetoothManager.shared.$discoveredPeripherals.map { peripherals in
-            peripherals.compactMap { peripheral in
-                guard let name = peripheral.value.name else { return nil }
-
-                return (peripheral.key, name)
+                return (key, value.name!)
             }
-        }.assign(to: &$sensors)
-    }
-
-    func startScanningSensors() {
-        BluetoothManager.shared.startScanningSensors()
-    }
-
-    func stopScanningSensors() {
-        BluetoothManager.shared.stopScanningSensors()
+        }
+        .onAppear(perform: BluetoothManager.shared.startScanningSensors)
+        .onDisappear(perform: BluetoothManager.shared.stopScanningSensors)
     }
 }
 
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        SensorSettingView()
+//        SensorSettingView()
+        SensorSelectingView()
+            .previewLayout(.sizeThatFits)
     }
 }
 
