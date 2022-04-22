@@ -14,10 +14,10 @@ protocol CBCentralManagerRequirement: AnyObject {
     var delegate: CBCentralManagerDelegate? { get set }
     var isScanning: Bool { get }
 
-    func connect(_ peripheral: CBPeripheral, options: [String: Any]?)
     func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String: Any]?)
     func stopScan()
     func retrievePeripherals(withIdentifiers: [UUID]) -> [CBPeripheral]
+    func connect(_ peripheral: CBPeripheral, options: [String: Any]?)
     func cancelPeripheralConnection(_ identifier: CBPeripheral)
 }
 
@@ -35,7 +35,7 @@ final class BluetoothManager: NSObject {
     @Published
     private(set) var isBluetoothEnabled = false
     @Published
-    private(set) var discoveredPeripherals = [UUID: CBPeripheral]()
+    private(set) var discoveredNamedPeripheralNames = [UUID: String]()
 
     // MARK: Speed
 
@@ -61,6 +61,13 @@ final class BluetoothManager: NSObject {
 
     private let centralManager: CBCentralManagerRequirement
     private var cancellables = Set<AnyCancellable>()
+    private var discoveredNamedPeripherals = [UUID: CBPeripheral]() {
+        didSet {
+            discoveredNamedPeripherals.forEach { key, value in
+                discoveredNamedPeripheralNames[key] = value.name!
+            }
+        }
+    }
 
     init(centralManager: CBCentralManagerRequirement) {
         self.centralManager = centralManager
@@ -98,12 +105,12 @@ final class BluetoothManager: NSObject {
     }
 
     func stopScanningSensors() {
-        discoveredPeripherals.removeAll()
+        discoveredNamedPeripherals.removeAll()
         centralManager.stopScan()
     }
 
     func connectToSpeedSensor(uuid: UUID) -> ConnectingWithPeripheralFuture {
-        guard let peripheral = discoveredPeripherals[uuid] else {
+        guard let peripheral = discoveredNamedPeripherals[uuid] else {
             return .init { $0(.failure(.init())) }
         }
 
@@ -125,7 +132,9 @@ extension BluetoothManager: CBCentralManagerDelegate {
     }
 
     func centralManager(_: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any], rssi _: NSNumber) {
-        discoveredPeripherals[peripheral.identifier] = peripheral
+        guard peripheral.name != nil else { return }
+
+        discoveredNamedPeripherals[peripheral.identifier] = peripheral
     }
 
     func centralManager(_: CBCentralManager, didConnect peripheral: CBPeripheral) {

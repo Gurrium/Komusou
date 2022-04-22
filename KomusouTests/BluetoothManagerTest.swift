@@ -10,55 +10,65 @@ import CoreBluetooth
 @testable import Komusou
 import XCTest
 
-class BluetoothManagerMock: CBCentralManagerRequirement {
+class CBCentralManagerMock: CBCentralManagerRequirement {
     var delegate: CBCentralManagerDelegate?
+    var isScanning = false
 
-    var isScanning: Bool
+    private var peripheralNames: [UUID: String]
 
-    func connect(_ peripheral: CBPeripheral, options: [String : Any]?) {
-        <#code#>
+    init(peripheralNames: [UUID: String]) {
+        self.peripheralNames = peripheralNames
     }
 
-    func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String : Any]?) {
-        <#code#>
+    func scanForPeripherals(withServices _: [CBUUID]?, options _: [String: Any]?) {
+        isScanning = true
     }
 
     func stopScan() {
-        <#code#>
+        isScanning = false
     }
 
-    func retrievePeripherals(withIdentifiers: [UUID]) -> [CBPeripheral] {
-        <#code#>
+    func retrievePeripherals(withIdentifiers _: [UUID]) -> [CBPeripheral] {
+        []
     }
 
-    func cancelPeripheralConnection(_ identifier: CBPeripheral) {
-        <#code#>
+    func connect(_: CBPeripheral, options _: [String: Any]?) {
+        // nop
+    }
+
+    func cancelPeripheralConnection(_: CBPeripheral) {
+        // nop
     }
 }
 
 class BluetoothManagerTest: XCTestCase {
-    var manager: BluetoothManager!
+//    var manager: BluetoothManager!
     var cancellables = Set<AnyCancellable>()
 
-    override func setUp() {
-        manager = BluetoothManager(centralManager: <#T##CBCentralManagerRequirement#>)
-    }
+//    override func setUp() {
+//        manager = BluetoothManager(centralManager: CBCentralManagerMock())
+//    }
 
     override func tearDown() {
         cancellables = Set<AnyCancellable>()
     }
 
     func test_見つかったBluetoothデバイスが一覧できる() {
-        let expectedKeys = [UUID]()
+        let peripheralNames = [
+            UUID(): "SPD-1",
+            UUID(): "SPD-2",
+            UUID(): "CDC-1",
+            UUID(): "CDC-2",
+        ]
+        let mock = CBCentralManagerMock(peripheralNames: peripheralNames)
+        let manager = BluetoothManager(centralManager: mock)
         let exp = expectation(description: "キーの配列が期待したものと同じであることがテストされる")
 
-        XCTAssertEqual([1, 2, 3], [1, 2, 3])
-        XCTAssertEqual([1, 2, 3], [1, 3, 2])
-
-        manager.$discoveredPeripherals
-            .map { Array($0.keys) }
+        manager.startScanningSensors()
+        manager.$discoveredNamedPeripheralNames
+            .map { $0.keys }
             .sink { actualKeys in
-                XCTAssertEqual(actualKeys, expectedKeys)
+                XCTAssertEqual(actualKeys, peripheralNames.keys)
                 exp.fulfill()
             }
             .store(in: &cancellables)

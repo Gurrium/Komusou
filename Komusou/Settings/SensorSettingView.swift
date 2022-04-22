@@ -147,17 +147,18 @@ final class SensorSettingViewState: ObservableObject {
 
 struct SensorSelectingView: View {
     @State
-    var sensors: [(UUID, String)] = []
+    var sensorNames = [UUID: String]()
 
     var body: some View {
         List {
             Section {
-                if !sensors.isEmpty {
-                    ForEach(sensors, id: \.0) { sensor in
+                if !sensorNames.isEmpty {
+                    ForEach(Array(sensorNames.keys), id: \.self) { key in
+                        let sensorName = sensorNames[key]!
                         Button {
-                            print(sensor.0)
+                            print(sensorName)
                         } label: {
-                            Text(sensor.1)
+                            Text(sensorName)
                         }
                     }
                 }
@@ -168,13 +169,8 @@ struct SensorSelectingView: View {
                 }
             }
         }
-        .onReceive(BluetoothManager.shared.$discoveredPeripherals) {
-            sensors = $0.compactMap { key, value -> (UUID, String)? in
-                guard let name = value.name,
-                      !name.isEmpty else { return nil }
-
-                return (key, value.name!)
-            }
+        .onReceive(BluetoothManager.shared.$discoveredNamedPeripheralNames) {
+            sensorNames = $0
         }
         .onAppear(perform: BluetoothManager.shared.startScanningSensors)
         .onDisappear(perform: BluetoothManager.shared.stopScanningSensors)
