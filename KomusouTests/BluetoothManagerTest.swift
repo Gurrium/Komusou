@@ -14,14 +14,17 @@ class CBCentralManagerMock: CBCentralManagerRequirement {
     var delegate: CBCentralManagerDelegate?
     var isScanning = false
 
-    private var peripheralNames: [UUID: String]
+    private var peripheralNames: [UUID: String?]
 
-    init(peripheralNames: [UUID: String]) {
+    init(peripheralNames: [UUID: String?]) {
         self.peripheralNames = peripheralNames
     }
 
     func scanForPeripherals(withServices _: [CBUUID]?, options _: [String: Any]?) {
         isScanning = true
+        peripheralNames.values.forEach { name in
+            delegate?.centralManager?(, didDiscover: , advertisementData: , rssi: ) // ????
+        }
     }
 
     func stopScan() {
@@ -53,12 +56,12 @@ class BluetoothManagerTest: XCTestCase {
         cancellables = Set<AnyCancellable>()
     }
 
-    func test_見つかったBluetoothデバイスが一覧できる() {
+    func test_見つかった名前があるBluetoothデバイスが一覧できる() {
         let peripheralNames = [
             UUID(): "SPD-1",
             UUID(): "SPD-2",
             UUID(): "CDC-1",
-            UUID(): "CDC-2",
+            UUID(): nil,
         ]
         let mock = CBCentralManagerMock(peripheralNames: peripheralNames)
         let manager = BluetoothManager(centralManager: mock)
