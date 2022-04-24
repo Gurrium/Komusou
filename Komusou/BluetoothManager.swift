@@ -10,18 +10,69 @@ import CoreBluetooth
 import Foundation
 import struct SwiftUI.AppStorage
 
-protocol CBCentralManagerRequirement: AnyObject {
+protocol CentralManager: AnyObject {
     var delegate: CBCentralManagerDelegate? { get set }
     var isScanning: Bool { get }
+    var state: CBManagerState { get }
 
     func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String: Any]?)
     func stopScan()
-    func retrievePeripherals(withIdentifiers: [UUID]) -> [CBPeripheral]
-    func connect(_ peripheral: CBPeripheral, options: [String: Any]?)
-    func cancelPeripheralConnection(_ identifier: CBPeripheral)
+    func retrievePeripherals(withIdentifiers: [UUID]) -> [Peripheral]
+    func connect(_ peripheral: Peripheral, options: [String: Any]?)
+    func cancelPeripheralConnection(_ identifier: Peripheral)
 }
 
-extension CBCentralManager: CBCentralManagerRequirement {}
+extension CBCentralManager: CentralManager {
+    func retrievePeripherals(withIdentifiers identifiers: [UUID]) -> [Peripheral] {
+        retrievePeripherals(withIdentifiers: identifiers) as [CBPeripheral]
+    }
+
+    func connect(_ peripheral: Peripheral, options: [String: Any]?) {
+        connect(peripheral as! CBPeripheral, options: options)
+    }
+
+    func cancelPeripheralConnection(_ identifier: Peripheral) {
+        cancelPeripheralConnection(identifier as! CBPeripheral)
+    }
+}
+
+protocol Peripheral: AnyObject {
+    var name: String? { get }
+    var identifier: UUID { get }
+    var delegate: CBPeripheralDelegate? { get set }
+    var services: [CBService]? { get }
+
+    func discoverServices(_ serviceUUIDs: [CBUUID]?)
+    func discoverCharacteristics(_: [CBUUID]?, for service: CBService)
+    func setNotifyValue(_: Bool, for: CBCharacteristic)
+}
+
+extension CBPeripheral: Peripheral {}
+
+protocol Service: AnyObject {
+    var characteristics: [CBCharacteristic]? { get }
+}
+
+extension CBService: Service {}
+
+protocol Characteristic: AnyObject {
+    var value: Data? { get }
+}
+
+extension CBCharacteristic: Characteristic {}
+
+protocol CentralManagerDelegate: CBCentralManagerDelegate {
+    func centralManagerDidUpdateState(_ central: CentralManager)
+    func centralManager(_ central: CentralManager, didDiscover peripheral: Peripheral, advertisementData: [String: Any], rssi RSSI: NSNumber)
+    func centralManager(_: CentralManager, didConnect: Peripheral)
+    func centralManager(_: CentralManager, didFailToConnect: Peripheral, error: Error?)
+}
+
+protocol PeripheralDelegate: CBPeripheralDelegate {
+    func peripheral(_: Peripheral, didDiscoverServices _: Error?)
+    func peripheral(_: Peripheral, didDiscoverCharacteristicsFor service: Service, error _: Error?)
+    func peripheral(_: Peripheral, didUpdateValueFor characteristic: Characteristic, error _: Error?)
+}
 
 // TODO: テストしたい
 // TODO: Bluetooth部分をモックできるようにする?
@@ -42,7 +93,7 @@ final class BluetoothManager: NSObject {
     @Published
     private(set) var speed: Double?
     @Published
-    private(set) var connectedSpeedSensor: CBPeripheral?
+    private(set) var connectedSpeedSensor: Peripheral?
     private var previousWheelEventTime: UInt16?
     private var previousCumulativeWheelRevolutions: UInt32?
     private var speedMeasurementPauseCounter = 0 {
@@ -59,9 +110,9 @@ final class BluetoothManager: NSObject {
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
 
-    private let centralManager: CBCentralManagerRequirement
+    private let centralManager: CentralManager
     private var cancellables = Set<AnyCancellable>()
-    private var discoveredNamedPeripherals = [UUID: CBPeripheral]() {
+    private var discoveredNamedPeripherals = [UUID: Peripheral]() {
         didSet {
             discoveredNamedPeripherals.forEach { key, value in
                 discoveredNamedPeripheralNames[key] = value.name!
@@ -69,7 +120,7 @@ final class BluetoothManager: NSObject {
         }
     }
 
-    init(centralManager: CBCentralManagerRequirement) {
+    init(centralManager: CentralManager) {
         self.centralManager = centralManager
 
         super.init()
@@ -126,18 +177,26 @@ final class BluetoothManager: NSObject {
     }
 }
 
-extension BluetoothManager: CBCentralManagerDelegate {
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+extension BluetoothManager: CentralManagerDelegate {
+    func centralManagerDidUpdateState(_ central: CentralManager) {
         isBluetoothEnabled = central.state == .poweredOn
     }
 
-    func centralManager(_: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData _: [String: Any], rssi _: NSNumber) {
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        centralManagerDidUpdateState(central as CentralManager)
+    }
+
+    func centralManager(_: CentralManager, didDiscover peripheral: Peripheral, advertisementData _: [String: Any], rssi _: NSNumber) {
         guard peripheral.name != nil else { return }
 
         discoveredNamedPeripherals[peripheral.identifier] = peripheral
     }
 
-    func centralManager(_: CBCentralManager, didConnect peripheral: CBPeripheral) {
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+        centralManager(central as CentralManager, didDiscover: peripheral as Peripheral, advertisementData: advertisementData, rssi: RSSI)
+    }
+
+    func centralManager(_: CentralManager, didConnect peripheral: Peripheral) {
         switch peripheral.identifier {
         case connectingSpeedSensorUUID:
             connectingSpeedSensorUUID = nil
@@ -151,7 +210,11 @@ extension BluetoothManager: CBCentralManagerDelegate {
         }
     }
 
-    func centralManager(_: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error _: Error?) {
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        centralManager(central as CentralManager, didConnect: peripheral as Peripheral)
+    }
+
+    func centralManager(_: CentralManager, didFailToConnect peripheral: Peripheral, error _: Error?) {
         switch peripheral.identifier {
         case connectingSpeedSensorUUID:
             connectingSpeedSensorUUID = nil
@@ -160,23 +223,27 @@ extension BluetoothManager: CBCentralManagerDelegate {
             break
         }
     }
+
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        centralManager(central as CentralManager, didFailToConnect: peripheral as Peripheral, error: error)
+    }
 }
 
-extension BluetoothManager: CBPeripheralDelegate {
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices _: Error?) {
+extension BluetoothManager: PeripheralDelegate {
+    func peripheral(_ peripheral: Peripheral, didDiscoverServices _: Error?) {
         guard let service = peripheral.services?.first(where: { $0.uuid == .cyclingSpeedAndCadence }) else { return }
 
         peripheral.discoverCharacteristics([.cscMeasurement], for: service)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error _: Error?) {
+    func peripheral(_ peripheral: Peripheral, didDiscoverCharacteristicsFor service: Service, error _: Error?) {
         guard let characteristic = service.characteristics?.first(where: { $0.uuid == .cscMeasurement }),
               characteristic.properties.contains(.notify) else { return }
 
         peripheral.setNotifyValue(true, for: characteristic)
     }
 
-    func peripheral(_: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error _: Error?) {
+    func peripheral(_: Peripheral, didUpdateValueFor characteristic: Characteristic, error _: Error?) {
         guard let data = characteristic.value else { return }
 
         let value = [UInt8](data)

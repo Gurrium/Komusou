@@ -22,9 +22,6 @@ class CBCentralManagerMock: CBCentralManagerRequirement {
 
     func scanForPeripherals(withServices _: [CBUUID]?, options _: [String: Any]?) {
         isScanning = true
-        peripheralNames.values.forEach { name in
-            delegate?.centralManager?(, didDiscover: , advertisementData: , rssi: ) // ????
-        }
     }
 
     func stopScan() {
@@ -56,22 +53,30 @@ class BluetoothManagerTest: XCTestCase {
         cancellables = Set<AnyCancellable>()
     }
 
-    func test_見つかった名前があるBluetoothデバイスが一覧できる() {
-        let peripheralNames = [
-            UUID(): "SPD-1",
-            UUID(): "SPD-2",
-            UUID(): "CDC-1",
-            UUID(): nil,
+    func test_見つかった名前があるBluetoothデバイスを一覧できる() {
+        let id1 = UUID()
+        let id2 = UUID()
+        let id3 = UUID()
+        let id4 = UUID()
+        let peripherals = [
+            id1: "SPD-1",
+            id2: "SPD-2",
+            id3: "CDC-1",
+            id4: nil,
         ]
-        let mock = CBCentralManagerMock(peripheralNames: peripheralNames)
+        let mock = CBCentralManagerMock(peripheralNames: peripherals)
         let manager = BluetoothManager(centralManager: mock)
         let exp = expectation(description: "キーの配列が期待したものと同じであることがテストされる")
 
         manager.startScanningSensors()
         manager.$discoveredNamedPeripheralNames
-            .map { $0.keys }
-            .sink { actualKeys in
-                XCTAssertEqual(actualKeys, peripheralNames.keys)
+            .sink { actual in
+                let expected = [
+                    id1: "SPD-1",
+                    id2: "SPD-2",
+                    id3: "CDC-1",
+                ]
+                XCTAssertEqual(actual, expected)
                 exp.fulfill()
             }
             .store(in: &cancellables)
