@@ -74,8 +74,6 @@ protocol PeripheralDelegate: CBPeripheralDelegate {
     func peripheral(_: Peripheral, didUpdateValueFor characteristic: Characteristic, error _: Error?)
 }
 
-// TODO: テストしたい
-// TODO: Bluetooth部分をモックできるようにする?
 final class BluetoothManager: NSObject {
     struct ConnectingWithPeripheralError: Error {}
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
