@@ -132,7 +132,7 @@ class BluetoothManagerTest: XCTestCase {
 
         manager.connectToSpeedSensor(uuid: id).sink { result in
             switch result {
-            case .failure(_):
+            case .failure:
                 exp.fulfill()
             default:
                 XCTFail()
