@@ -2,6 +2,42 @@
   "object": {
     "pins": [
       {
+        "package": "Mockolo",
+        "repositoryURL": "https://github.com/uber/mockolo.git",
+        "state": {
+          "branch": null,
+          "revision": "90001b16b348ae632192d5d331610b0c18a8f12a",
+          "version": "1.7.0"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "e394bf350e38cb100b6bc4172834770ede1b7232",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "SwiftSyntax",
+        "repositoryURL": "https://github.com/apple/swift-syntax.git",
+        "state": {
+          "branch": null,
+          "revision": "0b6c22b97f8e9320bca62e82cdbee601cf37ad3f",
+          "version": "0.50600.1"
+        }
+      },
+      {
+        "package": "swift-tools-support-core",
+        "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
+        "state": {
+          "branch": null,
+          "revision": "3b6b97d612b56e25d80d0807f5bc38ea08b7bdf3",
+          "version": "0.2.3"
+        }
+      },
+      {
         "package": "SwiftFormat",
         "repositoryURL": "https://github.com/nicklockwood/SwiftFormat",
         "state": {
