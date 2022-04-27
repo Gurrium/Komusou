@@ -326,7 +326,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "SDKROOT=(xcrun --sdk macosx --show-sdk-path)\n#swift package update #Uncomment this line temporarily to update the version used to the latest matching your BuildTools/Package.swift file\nswift run -c release --package-path BuildTools swiftformat \"$SRCROOT\" --swiftversion 5.0 --config .swiftformat\n";
+			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools swiftformat \"$SRCROOT\" --swiftversion 5.0 --config .swiftformat\n";
 		};
 		E37CE6AB281810EF00EDFA19 /* Generate Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -344,7 +344,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "SDKROOT=(xcrun --sdk macosx --show-sdk-path)\n\nswift run -c release --package-path BuildTools mockolo -s \"$SRCROOT\" -d Mocks.swift\n";
+			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools mockolo -s \"$SRCROOT\" -d Mocks.swift\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
