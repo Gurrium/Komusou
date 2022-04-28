@@ -10,6 +10,7 @@ import CoreBluetooth
 import Foundation
 import struct SwiftUI.AppStorage
 
+/// @mockable
 protocol CentralManager: AnyObject {
     var delegate: CBCentralManagerDelegate? { get set }
     var isScanning: Bool { get }
@@ -36,6 +37,7 @@ extension CBCentralManager: CentralManager {
     }
 }
 
+/// @mockable
 protocol Peripheral: AnyObject {
     var name: String? { get }
     var identifier: UUID { get }

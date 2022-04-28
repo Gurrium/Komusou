@@ -10,60 +10,6 @@ import CoreBluetooth
 @testable import Komusou
 import XCTest
 
-class CentralManagerMock: CentralManager {
-    var delegate: CBCentralManagerDelegate?
-    var isScanning = false
-    var state = CBManagerState.unknown
-
-    private var peripherals: [Peripheral]
-
-    init(peripherals: [Peripheral]) {
-        self.peripherals = peripherals
-    }
-
-    func scanForPeripherals(withServices _: [CBUUID]?, options _: [String: Any]?) {
-        print(#function)
-    }
-
-    func stopScan() {
-        print(#function)
-    }
-
-    func retrievePeripherals(withIdentifiers _: [UUID]) -> [Peripheral] {
-        print(#function)
-
-        return []
-    }
-
-    func connect(_: Peripheral, options _: [String: Any]?) {
-        print(#function)
-    }
-
-    func cancelPeripheralConnection(_: Peripheral) {
-        print(#function)
-    }
-}
-
-class CBPeripheralMock: Peripheral {
-    var name: String?
-    var identifier: UUID
-    var delegate: CBPeripheralDelegate?
-    var services: [CBService]?
-
-    init(name: String? = nil, identifier: UUID = UUID(), delegate: CBPeripheralDelegate? = nil, services: [CBService]? = nil) {
-        self.name = name
-        self.identifier = identifier
-        self.delegate = delegate
-        self.services = services
-    }
-
-    func discoverServices(_: [CBUUID]?) {}
-
-    func discoverCharacteristics(_: [CBUUID]?, for _: CBService) {}
-
-    func setNotifyValue(_: Bool, for _: CBCharacteristic) {}
-}
-
 class BluetoothManagerTest: XCTestCase {
     var cancellables = Set<AnyCancellable>()
 
@@ -76,21 +22,21 @@ class BluetoothManagerTest: XCTestCase {
         let id2 = UUID()
         let id3 = UUID()
         let id4 = UUID()
-        let peripherals: [CBPeripheralMock] = [
-            .init(name: "SPD-1", identifier: id1),
-            .init(name: "SPD-2", identifier: id2),
-            .init(name: "SPD-3", identifier: id3),
-            .init(name: nil, identifier: id4),
+        let peripherals: [Peripheral] = [
+            PeripheralMock(name: "SPD-1", identifier: id1),
+            PeripheralMock(name: "SPD-2", identifier: id2),
+            PeripheralMock(name: "SPD-3", identifier: id3),
+            PeripheralMock(name: nil, identifier: id4),
         ]
-        let mockCentralManager = CentralManagerMock(peripherals: peripherals)
-        let manager = BluetoothManager(centralManager: mockCentralManager)
+        let centralManager = CentralManagerMock()
+        let bluetoothManager = BluetoothManager(centralManager: centralManager)
         let exp = expectation(description: "キーの配列が期待したものと同じであることがテストされる")
 
-        manager.startScanningSensors()
+        bluetoothManager.startScanningSensors()
         peripherals.forEach { peripheral in
-            manager.centralManager(mockCentralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+            bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
         }
-        manager.$discoveredNamedPeripheralNames
+        bluetoothManager.$discoveredNamedPeripheralNames
             .sink { actual in
                 let expected = [
                     id1: "SPD-1",
@@ -107,37 +53,36 @@ class BluetoothManagerTest: XCTestCase {
 
     func test_発見済みのセンサーに接続できる() {
         let id = UUID()
-        let peripheral = CBPeripheralMock(name: "SPD-1", identifier: id)
-        let mockCentralManager = CentralManagerMock(peripherals: [peripheral])
-        let manager = BluetoothManager(centralManager: mockCentralManager)
+        let peripheral: Peripheral = PeripheralMock(name: "SPD-1", identifier: id)
+        let centralManager = CentralManagerMock()
+        let bluetoothManager = BluetoothManager(centralManager: centralManager)
         let exp = expectation(description: "期待したセンサーに接続されたことがテストされる")
 
-        manager.centralManager(mockCentralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
-        manager.connectToSpeedSensor(uuid: id).sink { _ in
-            XCTAssertEqual(manager.connectedSpeedSensor?.identifier, id)
+        bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+        bluetoothManager.connectToSpeedSensor(uuid: id).sink { _ in
+            XCTAssertEqual(bluetoothManager.connectedSpeedSensor?.identifier, id)
             exp.fulfill()
         } receiveValue: { _ in }
             .store(in: &cancellables)
-        manager.centralManager(mockCentralManager, didConnect: peripheral)
+        bluetoothManager.centralManager(centralManager, didConnect: peripheral)
 
         wait(for: [exp], timeout: 0.1)
     }
 
     func test_未発見のセンサーには接続できない() {
-        let id = UUID()
-        let peripheral = CBPeripheralMock(name: "SPD-1", identifier: id)
-        let mockCentralManager = CentralManagerMock(peripherals: [peripheral])
-        let manager = BluetoothManager(centralManager: mockCentralManager)
+        let centralManager = CentralManagerMock()
+        let bluetoothManager = BluetoothManager(centralManager: centralManager)
         let exp = expectation(description: "未発見のセンサーには接続できないことがテストされる")
 
-        manager.connectToSpeedSensor(uuid: id).sink { result in
-            switch result {
-            case .failure:
-                exp.fulfill()
-            default:
-                XCTFail()
-            }
-        } receiveValue: { _ in }
+        bluetoothManager.connectToSpeedSensor(uuid: UUID())
+            .sink { result in
+                switch result {
+                case .failure:
+                    exp.fulfill()
+                default:
+                    XCTFail()
+                }
+            } receiveValue: { _ in }
             .store(in: &cancellables)
         // TODO: mockCentralManagerのconnectが呼ばれていないことをテストしたい
 

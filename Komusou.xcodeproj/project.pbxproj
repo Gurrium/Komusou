@@ -29,6 +29,7 @@
 		E383923627E8B23D008F156F /* ControlPanelView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E383923527E8B23D008F156F /* ControlPanelView.xib */; };
 		E383923827E8B608008F156F /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E383923727E8B608008F156F /* ControlPanelView.swift */; };
 		E383923C27EDE965008F156F /* SensorSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E383923B27EDE965008F156F /* SensorSettingView.swift */; };
+		E3D03ECB281AB9CE00259E9B /* Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3D03ECA281AB9CE00259E9B /* Mocks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		E383923527E8B23D008F156F /* ControlPanelView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlPanelView.xib; sourceTree = "<group>"; };
 		E383923727E8B608008F156F /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
 		E383923B27EDE965008F156F /* SensorSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorSettingView.swift; sourceTree = "<group>"; };
+		E3D03ECA281AB9CE00259E9B /* Mocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mocks.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				E383923527E8B23D008F156F /* ControlPanelView.xib */,
 				E383923727E8B608008F156F /* ControlPanelView.swift */,
 				E36508A127E212DE00BEE34F /* SpeedSensor.swift */,
+				E3D03ECA281AB9CE00259E9B /* Mocks.swift */,
 				E3535C4E27E3622F0035EDFA /* CadenceSensor.swift */,
 				E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */,
 				E37CE3C7280EDAA300EDFA19 /* BluetoothManager.swift */,
@@ -187,7 +190,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E3178D7627D379730000DB0F /* Build configuration list for PBXNativeTarget "Komusou" */;
 			buildPhases = (
-				E3578A0927FC6BE2001C7397 /* ShellScript */,
+				E3578A0927FC6BE2001C7397 /* SwiftFormat */,
+				E3D03EC9281AB92F00259E9B /* Generate Mocks */,
 				E3178D4E27D379710000DB0F /* Sources */,
 				E3178D4F27D379710000DB0F /* Frameworks */,
 				E3178D5027D379710000DB0F /* Resources */,
@@ -205,7 +209,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E3178D7927D379730000DB0F /* Build configuration list for PBXNativeTarget "KomusouTests" */;
 			buildPhases = (
-				E37CE6AB281810EF00EDFA19 /* Generate Mocks */,
 				E3178D5E27D379730000DB0F /* Sources */,
 				E3178D5F27D379730000DB0F /* Frameworks */,
 				E3178D6027D379730000DB0F /* Resources */,
@@ -311,7 +314,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E3578A0927FC6BE2001C7397 /* ShellScript */ = {
+		E3578A0927FC6BE2001C7397 /* SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -320,6 +323,7 @@
 			);
 			inputPaths = (
 			);
+			name = SwiftFormat;
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -328,7 +332,7 @@
 			shellPath = /bin/sh;
 			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools swiftformat \"$SRCROOT\" --swiftversion 5.0 --config .swiftformat\n";
 		};
-		E37CE6AB281810EF00EDFA19 /* Generate Mocks */ = {
+		E3D03EC9281AB92F00259E9B /* Generate Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -344,7 +348,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools mockolo -s \"$SRCROOT\" -d Mocks.swift\n";
+			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools mockolo -s \"$SRCROOT\" -d $SRCROOT/$TARGET_NAME/Mocks.swift\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -364,6 +368,7 @@
 				E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */,
 				E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */,
 				E3178D8427D4B8F80000DB0F /* WorldView.swift in Sources */,
+				E3D03ECB281AB9CE00259E9B /* Mocks.swift in Sources */,
 				E3535C5327E3646C0035EDFA /* CBUUID+AssignedNumbers.swift in Sources */,
 				E36508A227E212DE00BEE34F /* SpeedSensor.swift in Sources */,
 			);
