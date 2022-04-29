@@ -17,7 +17,24 @@ class BluetoothManagerTest: XCTestCase {
         cancellables.removeAll()
     }
 
-    func test_見つかった名前があるBluetoothデバイスを一覧できる() {
+    func test_Bluetoothが使えるときだけスキャンする() {
+        let centralManager = CentralManagerMock()
+        let bluetoothManager = BluetoothManager(centralManager: centralManager)
+
+        centralManager.state = .unknown
+        bluetoothManager.centralManagerDidUpdateState(centralManager)
+        bluetoothManager.startScanningSensors()
+        XCTAssertEqual(centralManager.scanForPeripheralsCallCount, 0)
+
+        centralManager.state = .poweredOn
+        bluetoothManager.centralManagerDidUpdateState(centralManager)
+        bluetoothManager.startScanningSensors()
+        XCTAssertEqual(centralManager.scanForPeripheralsCallCount, 1)
+    }
+
+    func test_名前があるBluetoothデバイスを一覧できる() {
+        let exp = expectation(description: "発見されたPeripheralのidentifierの配列が期待したものと同じであることがテストされる")
+
         let id1 = UUID()
         let id2 = UUID()
         let id3 = UUID()
@@ -30,12 +47,17 @@ class BluetoothManagerTest: XCTestCase {
         ]
         let centralManager = CentralManagerMock()
         let bluetoothManager = BluetoothManager(centralManager: centralManager)
-        let exp = expectation(description: "キーの配列が期待したものと同じであることがテストされる")
+        XCTAssertIdentical(centralManager.delegate, bluetoothManager)
+        centralManager.state = .poweredOn
+        bluetoothManager.centralManagerDidUpdateState(centralManager)
 
-        bluetoothManager.startScanningSensors()
-        peripherals.forEach { peripheral in
-            bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+        centralManager.scanForPeripheralsHandler = { _, _ in
+            peripherals.forEach { peripheral in
+                bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+            }
         }
+        bluetoothManager.startScanningSensors()
+
         bluetoothManager.$discoveredNamedPeripheralNames
             .sink { actual in
                 let expected = [
@@ -47,18 +69,24 @@ class BluetoothManagerTest: XCTestCase {
                 exp.fulfill()
             }
             .store(in: &cancellables)
-
         wait(for: [exp], timeout: 0.1)
     }
 
     func test_発見済みのセンサーに接続できる() {
+        // TODO: やりたいこととずれている気がするので修正する
+        let exp = expectation(description: "期待したセンサーに接続されたことがテストされる")
+
         let id = UUID()
         let peripheral: Peripheral = PeripheralMock(name: "SPD-1", identifier: id)
         let centralManager = CentralManagerMock()
         let bluetoothManager = BluetoothManager(centralManager: centralManager)
-        let exp = expectation(description: "期待したセンサーに接続されたことがテストされる")
+        XCTAssertIdentical(centralManager.delegate, bluetoothManager)
+        centralManager.state = .poweredOn
+        bluetoothManager.centralManagerDidUpdateState(centralManager)
 
-        bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+        centralManager.connectHandler = { _, _ in
+            bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+        }
         bluetoothManager.connectToSpeedSensor(uuid: id).sink { _ in
             XCTAssertEqual(bluetoothManager.connectedSpeedSensor?.identifier, id)
             exp.fulfill()
