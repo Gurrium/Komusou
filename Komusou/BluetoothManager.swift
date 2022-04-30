@@ -165,14 +165,15 @@ final class BluetoothManager: NSObject {
             return .init { $0(.failure(.init())) }
         }
 
-        if let speedSensor = connectedSpeedSensor {
-            centralManager.cancelPeripheralConnection(speedSensor)
-        }
-        connectingSpeedSensorUUID = uuid
-        centralManager.connect(peripheral, options: nil)
-
         return .init { [weak self] promise in
             self?.speedSensorPromise = promise
+
+            if let speedSensor = self?.connectedSpeedSensor {
+                self?.centralManager.cancelPeripheralConnection(speedSensor)
+            }
+
+            self?.connectingSpeedSensorUUID = uuid
+            self?.centralManager.connect(peripheral, options: nil)
         }
     }
 }
