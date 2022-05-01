@@ -10,7 +10,7 @@ import CoreBluetooth
 import Foundation
 import struct SwiftUI.AppStorage
 
-/// @mockable
+/// @mockable(modifiers: delegate = weak)
 protocol CentralManager: AnyObject {
     var delegate: CBCentralManagerDelegate? { get set }
     var isScanning: Bool { get }
@@ -37,7 +37,7 @@ extension CBCentralManager: CentralManager {
     }
 }
 
-/// @mockable
+/// @mockable(modifiers: delegate = weak)
 protocol Peripheral: AnyObject {
     var name: String? { get }
     var identifier: UUID { get }
@@ -143,9 +143,11 @@ final class BluetoothManager: NSObject {
     deinit {
         // TODO:
         // ケイデンスセンサーもやる
-        guard let connectedSpeedSensor = connectedSpeedSensor else { return }
+        if let connectedSpeedSensor = connectedSpeedSensor {
+            centralManager.cancelPeripheralConnection(connectedSpeedSensor)
+        }
 
-        centralManager.cancelPeripheralConnection(connectedSpeedSensor)
+        stopScanningSensors()
     }
 
     func startScanningSensors() {

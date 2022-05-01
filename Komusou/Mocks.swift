@@ -20,7 +20,7 @@ class CentralManagerMock: CentralManager {
 
 
     private(set) var delegateSetCallCount = 0
-    var delegate: CBCentralManagerDelegate? = nil { didSet { delegateSetCallCount += 1 } }
+    weak var delegate: CBCentralManagerDelegate? = nil { didSet { delegateSetCallCount += 1 } }
 
     private(set) var isScanningSetCallCount = 0
     var isScanning: Bool = false { didSet { isScanningSetCallCount += 1 } }
@@ -100,7 +100,7 @@ class PeripheralMock: Peripheral {
     var identifier: UUID = UUID() { didSet { identifierSetCallCount += 1 } }
 
     private(set) var delegateSetCallCount = 0
-    var delegate: CBPeripheralDelegate? = nil { didSet { delegateSetCallCount += 1 } }
+    weak var delegate: CBPeripheralDelegate? = nil { didSet { delegateSetCallCount += 1 } }
 
     private(set) var servicesSetCallCount = 0
     var services: [CBService]? = nil { didSet { servicesSetCallCount += 1 } }

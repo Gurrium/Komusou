@@ -18,6 +18,7 @@ class BluetoothManagerTest: XCTestCase {
     }
 
     func test_Bluetoothが使えるときだけスキャンする() {
+        let exp = expectation(description: "scanForPeripheralsが呼ばれる")
         let centralManager = CentralManagerMock()
         let bluetoothManager = BluetoothManager(centralManager: centralManager)
 
@@ -28,13 +29,18 @@ class BluetoothManagerTest: XCTestCase {
 
         centralManager.state = .poweredOn
         bluetoothManager.centralManagerDidUpdateState(centralManager)
+        centralManager.scanForPeripheralsHandler = { serviceUUIDs, _ in
+            XCTAssertEqual(serviceUUIDs, [.cyclingSpeedAndCadence])
+            exp.fulfill()
+        }
         bluetoothManager.startScanningSensors()
         XCTAssertEqual(centralManager.scanForPeripheralsCallCount, 1)
+
+        wait(for: [exp], timeout: 0.1)
     }
 
     func test_名前があるBluetoothデバイスを一覧できる() {
-        let exp = expectation(description: "発見されたPeripheralのidentifierの配列が期待したものと同じであることがテストされる")
-
+        let exp = expectation(description: "発見されたPeripheralのidentifierの配列が期待したものと同じである")
         let id1 = UUID()
         let id2 = UUID()
         let id3 = UUID()
@@ -73,8 +79,7 @@ class BluetoothManagerTest: XCTestCase {
     }
 
     func test_発見済みのセンサーに接続できる() {
-        let exp = expectation(description: "期待したセンサーに接続されたことがテストされる")
-
+        let exp = expectation(description: "期待したセンサーに接続される")
         let id = UUID()
         let peripheral: Peripheral = PeripheralMock(name: "SPD-1", identifier: id)
         let centralManager = CentralManagerMock()
@@ -107,8 +112,7 @@ class BluetoothManagerTest: XCTestCase {
     }
 
     func test_未発見のセンサーには接続できない() {
-        let exp = expectation(description: "未発見のセンサーには接続できないことがテストされる")
-
+        let exp = expectation(description: "未発見のセンサーには接続されない")
         let id = UUID()
         let peripheral: Peripheral = PeripheralMock(name: "SPD-1", identifier: id)
         let centralManager = CentralManagerMock()
@@ -136,8 +140,7 @@ class BluetoothManagerTest: XCTestCase {
     }
 
     func test_初期化時に前回接続したセンサーと接続する() {
-        let exp = expectation(description: "期待したセンサーに接続されたことがテストされる")
-
+        let exp = expectation(description: "前回接続したセンサーに接続される")
         let id = UUID()
         let peripheral: Peripheral = PeripheralMock(name: "SPD-1", identifier: id)
         let centralManager = CentralManagerMock()
@@ -175,5 +178,46 @@ class BluetoothManagerTest: XCTestCase {
         bluetoothManager = BluetoothManager(centralManager: centralManager)
 
         wait(for: [exp], timeout: 0.1)
+    }
+
+    func test_deinit() {
+        let cancelPeripheralConnectionExp = expectation(description: "cancelPeripheralConnection")
+        let stopScanExp = expectation(description: "stopScan")
+        let sensorConnectionExp = expectation(description: "期待したセンサーに接続される")
+        let id = UUID()
+        let peripheral: Peripheral = PeripheralMock(name: "SPD-1", identifier: id)
+        let centralManager = CentralManagerMock()
+        var bluetoothManager: BluetoothManager? = BluetoothManager(centralManager: centralManager)
+        centralManager.state = .poweredOn
+        bluetoothManager?.centralManagerDidUpdateState(centralManager)
+
+        centralManager.scanForPeripheralsHandler = { _, _ in
+            bluetoothManager?.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+        }
+        bluetoothManager?.startScanningSensors()
+
+        centralManager.connectHandler = { _, _ in
+            bluetoothManager?.centralManager(centralManager, didConnect: peripheral)
+        }
+        bluetoothManager?.connectToSpeedSensor(uuid: peripheral.identifier)
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .failure:
+                    XCTFail()
+                case .finished:
+                    sensorConnectionExp.fulfill()
+                }
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+
+        wait(for: [sensorConnectionExp], timeout: 0.1)
+
+        centralManager.cancelPeripheralConnectionHandler = { peripheralAttemptedToCancelConnection in
+            XCTAssertEqual(peripheralAttemptedToCancelConnection.identifier, peripheral.identifier)
+            cancelPeripheralConnectionExp.fulfill()
+        }
+        centralManager.stopScanHandler = { stopScanExp.fulfill() }
+        bluetoothManager = nil
+        wait(for: [cancelPeripheralConnectionExp, stopScanExp], timeout: 0.1)
     }
 }
