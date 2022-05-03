@@ -154,9 +154,9 @@ class BluetoothManagerTest: XCTestCase {
     private func scanForPeripherals(_ peripherals: [PeripheralMock]) {
         powerOnCentralManager()
 
-        centralManager.scanForPeripheralsHandler = { [unowned bluetoothManager, unowned centralManager] _, _ in
+        centralManager.scanForPeripheralsHandler = { [unowned bluetoothManager = bluetoothManager!, unowned centralManager = centralManager!] _, _ in
             peripherals.forEach { peripheral in
-                bluetoothManager!.centralManager(centralManager!, didDiscover: peripheral, advertisementData: [:], rssi: 0)
+                bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
             }
         }
         bluetoothManager.startScanningSensors()
@@ -174,8 +174,8 @@ class BluetoothManagerTest: XCTestCase {
     private func connectToSpeedSensor(_ peripheral: PeripheralMock) {
         scanForPeripherals([peripheral])
 
-        centralManager.connectHandler = { [unowned bluetoothManager, unowned centralManager] _, _ in
-            bluetoothManager!.centralManager(centralManager!, didConnect: peripheral)
+        centralManager.connectHandler = { [unowned bluetoothManager = bluetoothManager!, unowned centralManager = centralManager!] _, _ in
+            bluetoothManager.centralManager(centralManager, didConnect: peripheral)
         }
         bluetoothManager?.connectToSpeedSensor(uuid: peripheral.identifier)
             .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
