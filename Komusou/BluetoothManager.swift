@@ -104,7 +104,7 @@ final class BluetoothManager: NSObject {
         }
     }
     @AppStorage(kTireSizeKey)
-    var tireSize: TireSize = .standard(.iso25_622)
+    private var tireSize: TireSize = .standard(.iso25_622)
     @AppStorage(kSavedSpeedSensorUUIDKey)
     private var savedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
