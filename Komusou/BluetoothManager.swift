@@ -239,11 +239,19 @@ extension BluetoothManager: PeripheralDelegate {
         peripheral.discoverCharacteristics([.cscMeasurement], for: service)
     }
 
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        self.peripheral(peripheral as Peripheral, didDiscoverServices: error)
+    }
+
     func peripheral(_ peripheral: Peripheral, didDiscoverCharacteristicsFor service: Service, error _: Error?) {
         guard let characteristic = service.characteristics?.first(where: { $0.uuid == .cscMeasurement }),
               characteristic.properties.contains(.notify) else { return }
 
         peripheral.setNotifyValue(true, for: characteristic)
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        self.peripheral(peripheral as Peripheral, didDiscoverCharacteristicsFor: service, error: error)
     }
 
     func peripheral(_: Peripheral, didUpdateValueFor characteristic: Characteristic, error _: Error?) {
@@ -260,6 +268,10 @@ extension BluetoothManager: PeripheralDelegate {
         } else {
             speedMeasurementPauseCounter += 1
         }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        self.peripheral(peripheral as Peripheral, didUpdateValueFor: characteristic, error: error)
     }
 
     private func calculateSpeed(from value: [UInt8]) -> Double? {
