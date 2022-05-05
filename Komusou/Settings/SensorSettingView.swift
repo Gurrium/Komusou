@@ -115,8 +115,8 @@ final class SensorSettingViewState: ObservableObject {
 //        }
 //        .listStyle(.insetGrouped)
 //        .alert("接続に失敗しました", isPresented: $didError) {}
-//        .onAppear(perform: state.startScanningSensors)
-//        .onDisappear(perform: state.stopScanningSensors)
+//        .onAppear(perform: state.scanForSensors)
+//        .onDisappear(perform: state.stopScan)
 //    }
 // }
 //
@@ -136,12 +136,12 @@ final class SensorSettingViewState: ObservableObject {
 //        }.assign(to: &$sensors)
 //    }
 //
-//    func startScanningSensors() {
-//        BluetoothManager.shared.startScanningSensors()
+//    func scanForSensors() {
+//        BluetoothManager.shared.scanForSensors()
 //    }
 //
-//    func stopScanningSensors() {
-//        BluetoothManager.shared.stopScanningSensors()
+//    func stopScan() {
+//        BluetoothManager.shared.stopScan()
 //    }
 // }
 
@@ -169,11 +169,11 @@ struct SensorSelectingView: View {
                 }
             }
         }
-        .onReceive(BluetoothManager.shared.$discoveredNamedPeripheralNames) {
+        .onReceive(BluetoothManager.shared.$sensorNames) {
             sensorNames = $0
         }
-        .onAppear(perform: BluetoothManager.shared.startScanningSensors)
-        .onDisappear(perform: BluetoothManager.shared.stopScanningSensors)
+        .onAppear(perform: BluetoothManager.shared.scanForSensors)
+        .onDisappear(perform: BluetoothManager.shared.stopScan)
     }
 }
 

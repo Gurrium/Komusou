@@ -35,7 +35,7 @@ class BluetoothManagerTest: XCTestCase {
 
         centralManager.state = .unknown
         bluetoothManager.centralManagerDidUpdateState(centralManager)
-        bluetoothManager.startScanningSensors()
+        bluetoothManager.scanForSensors()
         XCTAssertEqual(centralManager.scanForPeripheralsCallCount, 0)
 
         centralManager.state = .poweredOn
@@ -44,7 +44,7 @@ class BluetoothManagerTest: XCTestCase {
             XCTAssertEqual(serviceUUIDs, [.cyclingSpeedAndCadence])
             exp.fulfill()
         }
-        bluetoothManager.startScanningSensors()
+        bluetoothManager.scanForSensors()
         XCTAssertEqual(centralManager.scanForPeripheralsCallCount, 1)
 
         wait(for: [exp], timeout: 0.1)
@@ -65,7 +65,7 @@ class BluetoothManagerTest: XCTestCase {
 
         scanForPeripherals(peripherals)
 
-        bluetoothManager.$discoveredNamedPeripheralNames
+        bluetoothManager.$sensorNames
             .sink { actual in
                 let expected = [
                     id1: "SPD-1",
@@ -88,7 +88,7 @@ class BluetoothManagerTest: XCTestCase {
         centralManager.connectHandler = { _, _ in
             XCTFail()
         }
-        XCTAssertEqual(bluetoothManager.discoveredNamedPeripheralNames, [:])
+        XCTAssertEqual(bluetoothManager.sensorNames, [:])
         bluetoothManager.connectToSpeedSensor(uuid: peripheral.identifier)
             .sink { result in
                 switch result {
@@ -159,7 +159,7 @@ class BluetoothManagerTest: XCTestCase {
                 bluetoothManager.centralManager(centralManager, didDiscover: peripheral, advertisementData: [:], rssi: 0)
             }
         }
-        bluetoothManager.startScanningSensors()
+        bluetoothManager.scanForSensors()
     }
 
     func test_scanForPeripherals() {
@@ -168,7 +168,7 @@ class BluetoothManagerTest: XCTestCase {
 
         XCTAssertEqual(centralManager.state, .poweredOn)
         XCTAssertEqual(bluetoothManager.isBluetoothEnabled, true)
-        XCTAssertEqual(bluetoothManager.discoveredNamedPeripheralNames, [id: "SPD-1"])
+        XCTAssertEqual(bluetoothManager.sensorNames, [id: "SPD-1"])
     }
 
     private func connectToSpeedSensor(_ peripheral: PeripheralMock) {
