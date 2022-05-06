@@ -15,10 +15,10 @@ struct SensorSettingView: View {
 
     var body: some View {
         List {
-            Row(
+            SensorRow(
                 isSheetPresented: $state.isSpeedSensorSheetPresented,
-                itemLabel: "スピードセンサー",
-                valueLabel: state.speedSensorName
+                sensorType: "スピードセンサー",
+                sensorName: state.speedSensorName
             ) {
                 SensorSelectingView()
 //                SensorSelectingView(didError: $state.didError, didSelectSensor: state.connectToSpeedSensor(uuid:))
@@ -28,11 +28,11 @@ struct SensorSettingView: View {
         .listStyle(.insetGrouped)
     }
 
-    private struct Row<Content: View>: View {
+    private struct SensorRow<Content: View>: View {
         @Binding
         var isSheetPresented: Bool
-        let itemLabel: String
-        let valueLabel: String
+        let sensorType: String
+        let sensorName: String
         @ViewBuilder
         let sheetContent: () -> Content
 
@@ -41,9 +41,9 @@ struct SensorSettingView: View {
                 isSheetPresented = true
             } label: {
                 HStack {
-                    Text(itemLabel)
+                    Text(sensorType)
                     Spacer()
-                    Text(valueLabel)
+                    Text(sensorName)
                         .foregroundColor(.secondary)
                 }
             }
