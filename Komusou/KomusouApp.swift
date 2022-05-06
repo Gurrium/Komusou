@@ -14,7 +14,13 @@ import SwiftUI
 
 @main
 struct KomusouApp: App {
-    static let speedSensor = MockSpeedSensor()
+    static let speedSensor: SpeedSensor = {
+        let central = CentralManagerMock(isScanning: false, state: .poweredOn)
+        let bluetoothManager = BluetoothManager(centralManager: central)
+        bluetoothManager.centralManagerDidUpdateState(central)
+
+        return BluetoothSpeedSensor(bluetoothManager: bluetoothManager)
+    }()
     static let cadenceSensor = MockCadenceSensor()
 
     var body: some Scene {
