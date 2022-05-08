@@ -20,7 +20,7 @@ struct SensorSettingView: View {
                 sensorType: "スピードセンサー",
                 sensorName: state.speedSensorName
             ) {
-                SensorSelectingView()
+                SensorSelectingView(isSheetPresented: $state.isSpeedSensorSheetPresented)
 //                SensorSelectingView(didError: $state.didError, didSelectSensor: state.connectToSpeedSensor(uuid:))
             }
             // TODO: ケイデンスセンサー
@@ -58,27 +58,11 @@ final class SensorSettingViewState: ObservableObject {
     private(set) var speedSensorName = ""
     @Published
     var isSpeedSensorSheetPresented = false
-    @Published
-    var didError = false
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
         BluetoothManager.shared.$connectedSpeedSensor.map { $0?.name ?? "" }.assign(to: &$speedSensorName)
-    }
-
-    func connectToSpeedSensor(uuid: UUID) {
-        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
-            switch result {
-            case .failure:
-                self.didError = true
-            case .finished:
-                break
-            }
-        } receiveValue: { [unowned self] _ in
-            self.isSpeedSensorSheetPresented = false
-        }
-        .store(in: &cancellables)
     }
 }
 
@@ -146,8 +130,14 @@ final class SensorSettingViewState: ObservableObject {
 // }
 
 struct SensorSelectingView: View {
+    @ObservedObject
+    private var state: SensorSelectingViewState
     @State
-    var sensorNames = [UUID: String]()
+    private var sensorNames = [UUID: String]()
+
+    init(isSheetPresented: Binding<Bool>) {
+        state = .init(isSheetPresented: isSheetPresented)
+    }
 
     var body: some View {
         List {
@@ -169,6 +159,8 @@ struct SensorSelectingView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
+        .alert("接続に失敗しました", isPresented: $state.didError) {}
         .onReceive(BluetoothManager.shared.$sensorNames) {
             sensorNames = $0
         }
@@ -177,10 +169,35 @@ struct SensorSelectingView: View {
     }
 }
 
+class SensorSelectingViewState: ObservableObject {
+    @Published
+    var didError = false
+    @Binding
+    var isSheetPresented: Bool
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init(isSheetPresented: Binding<Bool>) {
+        self._isSheetPresented = isSheetPresented
+    }
+
+    func connectToSpeedSensor(uuid: UUID) {
+        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
+            switch result {
+            case .failure:
+                self.didError = true
+            case .finished:
+                self.isSheetPresented = false
+            }
+        } receiveValue: { _ in }
+        .store(in: &cancellables)
+    }
+}
+
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
 //        SensorSettingView()
-        SensorSelectingView()
+        SensorSelectingView(isSheetPresented: .constant(false))
             .previewLayout(.sizeThatFits)
     }
 }
