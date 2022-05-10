@@ -82,7 +82,7 @@ struct SensorSelectingView: View {
                     ForEach(Array(sensorNames.keys), id: \.self) { key in
                         let sensorName = sensorNames[key]!
                         Button {
-                            print(sensorName)
+                            state.connectToSpeedSensor(uuid: key)
                         } label: {
                             Text(sensorName)
                         }
@@ -114,7 +114,7 @@ class SensorSelectingViewState: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init(isSheetPresented: Binding<Bool>) {
-        self._isSheetPresented = isSheetPresented
+        _isSheetPresented = isSheetPresented
     }
 
     func connectToSpeedSensor(uuid: UUID) {
@@ -126,7 +126,7 @@ class SensorSelectingViewState: ObservableObject {
                 self.isSheetPresented = false
             }
         } receiveValue: { _ in }
-        .store(in: &cancellables)
+            .store(in: &cancellables)
     }
 }
 
