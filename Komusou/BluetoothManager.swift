@@ -80,8 +80,18 @@ final class BluetoothManager: NSObject {
     struct ConnectingWithPeripheralError: Error {}
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
-    static let shared = BluetoothManager(centralManager: CBCentralManager())
+    private static var sharedBluetoothManager: BluetoothManager!
     private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
+
+    static func shared() -> BluetoothManager {
+        precondition(sharedBluetoothManager != nil, "Must call setUp(centralManager:) before use")
+
+        return sharedBluetoothManager
+    }
+
+    static func setUp(centralManager: CentralManager) {
+        sharedBluetoothManager = .init(centralManager: centralManager)
+    }
 
     @Published
     private(set) var isBluetoothEnabled = false

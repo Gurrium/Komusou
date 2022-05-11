@@ -61,7 +61,7 @@ final class SensorSettingViewState: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        BluetoothManager.shared.$connectedSpeedSensor.map { $0?.name ?? "" }.assign(to: &$speedSensorName)
+        BluetoothManager.shared().$connectedSpeedSensor.map { $0?.name ?? "" }.assign(to: &$speedSensorName)
     }
 }
 
@@ -97,11 +97,11 @@ struct SensorSelectingView: View {
         }
         .listStyle(.insetGrouped)
         .alert("接続に失敗しました", isPresented: $state.didError) {}
-        .onReceive(BluetoothManager.shared.$sensorNames) {
+        .onReceive(BluetoothManager.shared().$sensorNames) {
             sensorNames = $0
         }
-        .onAppear(perform: BluetoothManager.shared.scanForSensors)
-        .onDisappear(perform: BluetoothManager.shared.stopScan)
+        .onAppear(perform: BluetoothManager.shared().scanForSensors)
+        .onDisappear(perform: BluetoothManager.shared().stopScan)
     }
 }
 
@@ -118,7 +118,7 @@ class SensorSelectingViewState: ObservableObject {
     }
 
     func connectToSpeedSensor(uuid: UUID) {
-        BluetoothManager.shared.connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
+        BluetoothManager.shared().connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
             switch result {
             case .failure:
                 self.didError = true

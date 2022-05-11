@@ -11,7 +11,7 @@ struct PlayView: View {
     @State
     var isSettingsPresented = false
     @State
-    private var isBluetoothEnabled = BluetoothManager.shared.isBluetoothEnabled
+    private var isBluetoothEnabled = BluetoothManager.shared().isBluetoothEnabled
 
     var body: some View {
         Group {
@@ -42,7 +42,7 @@ struct PlayView: View {
                 }
             }
         }
-        .onReceive(BluetoothManager.shared.$isBluetoothEnabled) { isBluetoothEnabled in
+        .onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
             self.isBluetoothEnabled = isBluetoothEnabled
         }
     }
