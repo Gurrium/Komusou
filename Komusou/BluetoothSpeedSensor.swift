@@ -15,6 +15,7 @@ final class BluetoothSpeedSensor: SpeedSensor {
     private var _speed: Double?
 
     init() {
+        speed = $_speed
         BluetoothManager.shared().$speed.assign(to: &$_speed)
     }
 }
