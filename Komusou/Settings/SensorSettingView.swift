@@ -10,21 +10,26 @@ import CoreBluetooth
 import SwiftUI
 
 struct SensorSettingView: View {
-    @ObservedObject
-    private var state = SensorSettingViewState()
+    @State
+    var isSpeedSensorSheetPresented = false
+    @State
+    var speedSensorName: String?
 
     var body: some View {
         List {
             SensorRow(
-                isSheetPresented: $state.isSpeedSensorSheetPresented,
+                isSheetPresented: $isSpeedSensorSheetPresented,
                 sensorType: "スピードセンサー",
-                sensorName: state.speedSensorName
+                sensorName: speedSensorName ?? "未接続"
             ) {
-                SensorSelectingView(isSheetPresented: $state.isSpeedSensorSheetPresented)
+                SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented)
             }
             // TODO: ケイデンスセンサー
         }
         .listStyle(.insetGrouped)
+        .onReceive(BluetoothManager.shared().$connectedSpeedSensor.map { $0?.name }) { speedSensorName in
+            self.speedSensorName = speedSensorName
+        }
     }
 
     private struct SensorRow<Content: View>: View {
@@ -49,19 +54,6 @@ struct SensorSettingView: View {
             .sheet(isPresented: $isSheetPresented, content: sheetContent)
             .tint(.primary)
         }
-    }
-}
-
-final class SensorSettingViewState: ObservableObject {
-    @Published
-    private(set) var speedSensorName = ""
-    @Published
-    var isSpeedSensorSheetPresented = false
-
-    private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        BluetoothManager.shared().$connectedSpeedSensor.map { $0?.name ?? "" }.assign(to: &$speedSensorName)
     }
 }
 
