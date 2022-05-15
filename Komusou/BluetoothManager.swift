@@ -140,7 +140,7 @@ final class BluetoothManager: NSObject {
         if let savedSpeedSensorUUID = savedSpeedSensorUUID,
            let speedSensor = self.centralManager.retrievePeripherals(withIdentifiers: [savedSpeedSensorUUID]).first
         {
-            self.centralManager.connect(speedSensor, options: nil)
+            connectToSpeedSensor(speedSensor)
         }
         // TODO: ケイデンスセンサー
 
@@ -180,13 +180,17 @@ final class BluetoothManager: NSObject {
         return .init { [weak self] promise in
             self?.speedSensorPromise = promise
 
-            if let speedSensor = self?.connectedSpeedSensor {
-                self?.centralManager.cancelPeripheralConnection(speedSensor)
-            }
-
-            self?.connectingSpeedSensorUUID = uuid
-            self?.centralManager.connect(peripheral, options: nil)
+            self?.connectToSpeedSensor(peripheral)
         }
+    }
+
+    private func connectToSpeedSensor(_ speedSensor: Peripheral) {
+        if let speedSensor = connectedSpeedSensor {
+            centralManager.cancelPeripheralConnection(speedSensor)
+        }
+
+        connectingSpeedSensorUUID = speedSensor.identifier
+        centralManager.connect(speedSensor, options: nil)
     }
 }
 

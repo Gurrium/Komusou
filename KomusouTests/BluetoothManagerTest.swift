@@ -105,6 +105,7 @@ class BluetoothManagerTest: XCTestCase {
 
     func test_初期化時に前回接続したセンサーと接続する() {
         let connectExp = expectation(description: "connect")
+        let connectedSpeedSensorExp = expectation(description: "connectedSpeedSensor")
         let peripheral = PeripheralMock(name: "SPD-1")
 
         connectToSpeedSensor(peripheral)
@@ -121,6 +122,17 @@ class BluetoothManagerTest: XCTestCase {
         bluetoothManager = BluetoothManager(centralManager: centralManager)
 
         wait(for: [connectExp], timeout: 0.1)
+
+        bluetoothManager.centralManager(centralManager, didConnect: peripheral)
+        bluetoothManager.$connectedSpeedSensor
+            .compactMap { $0 }
+            .sink { connectedSpeedSensor in
+                XCTAssertEqual(connectedSpeedSensor.identifier, peripheral.identifier)
+                connectedSpeedSensorExp.fulfill()
+            }
+            .store(in: &cancellables)
+
+        wait(for: [connectedSpeedSensorExp], timeout: 0.1)
     }
 
     func test_deinit() {
