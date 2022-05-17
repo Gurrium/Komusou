@@ -16,29 +16,10 @@ import SwiftUI
 struct KomusouApp: App {
     @UIApplicationDelegateAdaptor
     private var appDelegate: AppDelegate
-    @State
-    private var isBluetoothEnabled = BluetoothManager.shared().isBluetoothEnabled
-
-    static let speedSensor: SpeedSensor = BluetoothSpeedSensor()
-    static let cadenceSensor = MockCadenceSensor()
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if isBluetoothEnabled {
-                    PlayView()
-                } else {
-                    VStack(spacing: 16) {
-                        Text("Bluetoothを有効にしてください")
-                        Button("設定画面を開く") {
-                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-                        }
-                    }
-                }
-            }
-            .onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
-                self.isBluetoothEnabled = isBluetoothEnabled
-            }
+            PlayView()
         }
     }
 }
