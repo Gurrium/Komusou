@@ -35,15 +35,17 @@ struct PlayView: View {
             .sheet(isPresented: $isSettingsPresented) {
                 SettingsView()
             }
-            VStack(spacing: 8) {
-                Text("デモを表示しています")
-                Text("Bluetoothを有効にしてください")
-                Button("設定画面を開く") {
-                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+            if !isBluetoothEnabled {
+                VStack(spacing: 8) {
+                    Text("デモを表示しています")
+                    Text("Bluetoothを有効にしてください")
+                    Button("設定画面を開く") {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.gray.opacity(0.5)) // TODO: 背景色と文字色を修正する
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.gray.opacity(0.5)) // TODO: 背景色と文字色を修正する
         }.onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
             self.isBluetoothEnabled = isBluetoothEnabled
         }
