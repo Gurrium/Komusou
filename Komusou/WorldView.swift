@@ -9,7 +9,7 @@ import Combine
 import SceneKit
 import SwiftUI
 
-final class WorldView: UIViewRepresentable {
+struct WorldView: UIViewRepresentable {
     private let worldView: _WorldView
 
     init(speedSensor: SpeedSensor, cadenceSensor: CadenceSensor) {
