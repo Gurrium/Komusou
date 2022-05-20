@@ -9,6 +9,31 @@ import Combine
 import SceneKit
 import SwiftUI
 
+struct AltWorldView: View {
+    @Binding
+    var isBluetoothEnabled: Bool
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            WorldView(
+                speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor(),
+                cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()
+            )
+            VStack(alignment: .leading, spacing: 8) {
+                Text("999.99 [km/h]")
+                Text("90 [rpm]")
+            }
+            .padding([.top, .leading])
+        }
+    }
+}
+
+struct AltWorldView_Preview: PreviewProvider {
+    static var previews: some View {
+        AltWorldView(isBluetoothEnabled: .constant(true))
+    }
+}
+
 struct WorldView: UIViewRepresentable {
     private let worldView: _WorldView
 
