@@ -333,7 +333,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools swiftformat \"$SRCROOT\" --swiftversion 5.0 --config .swiftformat\n";
+			shellScript = "if [ $ENABLE_PREVIEWS = \"YES\" ]; then exit 0; fi\n\nxcrun --sdk macosx swift run -c release --package-path BuildTools swiftformat \"$SRCROOT\" --swiftversion 5.0 --config .swiftformat\n";
 		};
 		E3D03EC9281AB92F00259E9B /* Generate Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -351,7 +351,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "xcrun --sdk macosx swift run -c release --package-path BuildTools mockolo -s \"$SRCROOT\" -d $SRCROOT/$TARGET_NAME/Mocks.swift\n";
+			shellScript = "if [ $ENABLE_PREVIEWS = \"YES\" ]; then exit 0; fi\n\nxcrun --sdk macosx swift run -c release --package-path BuildTools mockolo -s \"$SRCROOT\" -d $SRCROOT/$TARGET_NAME/Mocks.swift\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
