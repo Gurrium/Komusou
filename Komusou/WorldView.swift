@@ -19,18 +19,29 @@ struct AltWorldView: View {
                 speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor(),
                 cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()
             )
-            VStack(alignment: .leading, spacing: 8) {
-                Text("999.99 [km/h]")
-                Text("90 [rpm]")
-            }
-            .padding([.top, .leading])
+            InfoPanelView()
+                .padding([.top, .leading])
         }
+    }
+}
+
+struct InfoPanelView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("999.99 [km/h]") // TODO: impl
+            Text("90 [rpm]")
+        }
+        .foregroundColor(.white)
+        .font(.headline)
+        .padding()
+        .background(.gray)
     }
 }
 
 struct AltWorldView_Preview: PreviewProvider {
     static var previews: some View {
         AltWorldView(isBluetoothEnabled: .constant(true))
+            .previewLayout(.sizeThatFits)
     }
 }
 
