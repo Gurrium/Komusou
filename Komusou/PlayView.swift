@@ -16,7 +16,7 @@ struct PlayView: View {
     var body: some View {
         ZStack {
             ZStack(alignment: .topTrailing) {
-                // FIXME: speedSensor.speedが変化してもViewに反映されないのを修正する。WorldViewの問題かも
+                // FIXME: センサーをここで初期化してるのよくないきがする。もっと高きところにあるのが正しそう
                 WorldView(
                     speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor(),
                     cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()

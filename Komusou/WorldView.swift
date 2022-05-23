@@ -15,21 +15,41 @@ struct AltWorldView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            WorldView(
-                speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor(),
-                cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()
-            )
-            InfoPanelView()
+            WorldView()
+            InfoPanelView(speed: <#T##Binding<Double>#>)
                 .padding([.top, .leading])
         }
     }
 }
 
 struct InfoPanelView: View {
+    private static let speedFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesSignificantDigits = true
+        formatter.minimumSignificantDigits = 3
+        formatter.maximumSignificantDigits = 3
+
+        return formatter
+    }()
+
+    private static let cadenceFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .none
+        formatter.usesSignificantDigits = true
+        formatter.minimumSignificantDigits = 2
+        formatter.maximumSignificantDigits = 3
+
+        return formatter
+    }()
+
+    var speed: Double
+    var cadence: Int
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("999.99 [km/h]") // TODO: impl
-            Text("90 [rpm]")
+            Text("\(Self.speedFormatter.string(from: .init(value: speed))!)[km/h]")
+            Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]" )
         }
         .foregroundColor(.white)
         .font(.headline)
@@ -62,7 +82,6 @@ struct WorldView: UIViewRepresentable {
 
 final class _WorldView: UIView {
     @IBOutlet var scnView: SCNView!
-    private var controlPanel: ControlPanelView
 
     private var speedSensor: SpeedSensor!
     private var speed = 0.0
@@ -96,8 +115,6 @@ final class _WorldView: UIView {
             .sink { [unowned self] speed in
                 boxBase.removeAction(forKey: movingKey)
                 boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: movingKey)
-
-                controlPanel.render(speed: speed)
             }
             .store(in: &cancellables)
 //        self.cadenceSensor.delegate = self
@@ -105,25 +122,8 @@ final class _WorldView: UIView {
         setupViews()
     }
 
-    required init?(coder: NSCoder) {
-        controlPanel = UINib(nibName: "ControlPanelView", bundle: nil).instantiate(withOwner: nil).first as! ControlPanelView
-
-        super.init(coder: coder)
-    }
-
     private func setupViews() {
         setupScnView()
-        setupControlPanelView()
-    }
-
-    private func setupControlPanelView() {
-        controlPanel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(controlPanel)
-
-        NSLayoutConstraint.activate([
-            controlPanel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            controlPanel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-        ])
     }
 
     private func setupScnView() {

@@ -26,8 +26,6 @@
 		E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */; };
 		E37CE3C8280EDAA300EDFA19 /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37CE3C7280EDAA300EDFA19 /* BluetoothManager.swift */; };
 		E37CE3CC2810171D00EDFA19 /* BluetoothManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37CE3CB2810171D00EDFA19 /* BluetoothManagerTest.swift */; };
-		E383923627E8B23D008F156F /* ControlPanelView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E383923527E8B23D008F156F /* ControlPanelView.xib */; };
-		E383923827E8B608008F156F /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E383923727E8B608008F156F /* ControlPanelView.swift */; };
 		E383923C27EDE965008F156F /* SensorSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E383923B27EDE965008F156F /* SensorSettingView.swift */; };
 		E3C77D7A282BCE2B0035DDCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3C77D79282BCE2B0035DDCD /* AppDelegate.swift */; };
 		E3D03ECB281AB9CE00259E9B /* Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3D03ECA281AB9CE00259E9B /* Mocks.swift */; };
@@ -73,8 +71,6 @@
 		E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSpeedSensor.swift; sourceTree = "<group>"; };
 		E37CE3C7280EDAA300EDFA19 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
 		E37CE3CB2810171D00EDFA19 /* BluetoothManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManagerTest.swift; sourceTree = "<group>"; };
-		E383923527E8B23D008F156F /* ControlPanelView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlPanelView.xib; sourceTree = "<group>"; };
-		E383923727E8B608008F156F /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
 		E383923B27EDE965008F156F /* SensorSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorSettingView.swift; sourceTree = "<group>"; };
 		E3C77D79282BCE2B0035DDCD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E3D03ECA281AB9CE00259E9B /* Mocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mocks.swift; sourceTree = "<group>"; };
@@ -134,8 +130,6 @@
 				E347936727D8D342008C5829 /* Settings */,
 				E3178D8327D4B8F80000DB0F /* WorldView.swift */,
 				E3535C5427E365BE0035EDFA /* WorldView.xib */,
-				E383923527E8B23D008F156F /* ControlPanelView.xib */,
-				E383923727E8B608008F156F /* ControlPanelView.swift */,
 				E36508A127E212DE00BEE34F /* SpeedSensor.swift */,
 				E3D03ECA281AB9CE00259E9B /* Mocks.swift */,
 				E3535C4E27E3622F0035EDFA /* CadenceSensor.swift */,
@@ -295,7 +289,6 @@
 				E3178D5D27D379730000DB0F /* Preview Assets.xcassets in Resources */,
 				E3535C5527E365BE0035EDFA /* WorldView.xib in Resources */,
 				E3178D8627D4BB930000DB0F /* art.scnassets in Resources */,
-				E383923627E8B23D008F156F /* ControlPanelView.xib in Resources */,
 				E3178D5A27D379730000DB0F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,7 +358,6 @@
 				E37CE3C8280EDAA300EDFA19 /* BluetoothManager.swift in Sources */,
 				E3C77D7A282BCE2B0035DDCD /* AppDelegate.swift in Sources */,
 				E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */,
-				E383923827E8B608008F156F /* ControlPanelView.swift in Sources */,
 				E3535C4F27E3622F0035EDFA /* CadenceSensor.swift in Sources */,
 				E383923C27EDE965008F156F /* SensorSettingView.swift in Sources */,
 				E3535C5127E362600035EDFA /* BluetoothCadenceSensor.swift in Sources */,
