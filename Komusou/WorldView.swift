@@ -10,13 +10,13 @@ import SceneKit
 import SwiftUI
 
 struct AltWorldView: View {
-    @Binding
-    var isBluetoothEnabled: Bool
+    @State
+    private var speed = 0.0
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            WorldView()
-            InfoPanelView(speed: <#T##Binding<Double>#>)
+            WorldView(speed: speed)
+            InfoPanelView(speed: speed, cadence: 0)
                 .padding([.top, .leading])
         }
     }
@@ -60,32 +60,34 @@ struct InfoPanelView: View {
 
 struct AltWorldView_Preview: PreviewProvider {
     static var previews: some View {
-        AltWorldView(isBluetoothEnabled: .constant(true))
+        AltWorldView()
             .previewLayout(.sizeThatFits)
     }
 }
 
 struct WorldView: UIViewRepresentable {
-    private let worldView: _WorldView
+    private let speed: Double
 
-    init(speedSensor: SpeedSensor, cadenceSensor: CadenceSensor) {
-        worldView = UINib(nibName: "WorldView", bundle: nil).instantiate(withOwner: nil).first as! _WorldView
-        worldView.build(speedSensor: speedSensor, cadenceSensor: cadenceSensor)
+    init(speed: Double) {
+        self.speed = speed
     }
 
-    func makeUIView(context _: Context) -> _WorldView {
-        worldView
+    func makeUIView(context: Context) -> _WorldView {
+        let worldView = UINib(nibName: "WorldView", bundle: nil).instantiate(withOwner: nil).first as! _WorldView
+        worldView.setupViews()
+
+        return worldView
     }
 
-    func updateUIView(_: _WorldView, context _: Context) {}
+    func updateUIView(_ view: _WorldView, context: Context) {
+        view.didChangeSpeed(speed)
+    }
 }
 
 final class _WorldView: UIView {
-    @IBOutlet var scnView: SCNView!
+    private static let movingKey = "movingAction"
 
-    private var speedSensor: SpeedSensor!
-    private var speed = 0.0
-    private let movingKey = "movingAction"
+    @IBOutlet var scnView: SCNView!
 
     // TODO: スピードに揃える
 //    private var cadenceSensor: CadenceSensor!
@@ -106,24 +108,13 @@ final class _WorldView: UIView {
 
     let boxBase = SCNNode()
 
-    func build(speedSensor: SpeedSensor, cadenceSensor _: CadenceSensor) {
-        self.speedSensor = speedSensor
-//        self.cadenceSensor = cadenceSensor
-
-        self.speedSensor.speed
-            .compactMap { $0 }
-            .sink { [unowned self] speed in
-                boxBase.removeAction(forKey: movingKey)
-                boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: movingKey)
-            }
-            .store(in: &cancellables)
-//        self.cadenceSensor.delegate = self
-
-        setupViews()
+    func setupViews() {
+        setupScnView()
     }
 
-    private func setupViews() {
-        setupScnView()
+    func didChangeSpeed(_ speed: Double) {
+        boxBase.removeAction(forKey: Self.movingKey)
+        boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: Self.movingKey)
     }
 
     private func setupScnView() {

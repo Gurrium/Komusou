@@ -16,7 +16,7 @@ struct PlayView: View {
     var body: some View {
         ZStack {
             ZStack(alignment: .topTrailing) {
-                // FIXME: センサーをここで初期化してるのよくないきがする。もっと高きところにあるのが正しそう
+                // FIXME: センサーをここで初期README化してるのよくないきがする。もっと高きところにあるのが正しそう
                 WorldView(
                     speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor(),
                     cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()
