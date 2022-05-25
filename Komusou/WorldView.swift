@@ -12,12 +12,16 @@ import SwiftUI
 struct AltWorldView: View {
     @State
     private var speed = 0.0
+    var speedSensor: SpeedSensor
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             WorldView(speed: speed)
             InfoPanelView(speed: speed, cadence: 0)
                 .padding([.top, .leading])
+        }
+        .onReceive(speedSensor.speed.compactMap({ $0 })) { speed in
+            self.speed = speed
         }
     }
 }
@@ -60,7 +64,7 @@ struct InfoPanelView: View {
 
 struct AltWorldView_Preview: PreviewProvider {
     static var previews: some View {
-        AltWorldView()
+        AltWorldView(speedSensor: MockSpeedSensor())
             .previewLayout(.sizeThatFits)
     }
 }
