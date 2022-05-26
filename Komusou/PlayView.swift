@@ -17,11 +17,12 @@ struct PlayView: View {
         ZStack {
             ZStack(alignment: .topTrailing) {
                 // FIXME: センサーをここで初期README化してるのよくないきがする。もっと高きところにあるのが正しそう
-                WorldView(
-                    speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor(),
-                    cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()
-                )
-                .edgesIgnoringSafeArea(.all)
+//                WorldView(
+//                    speedSensor: isBluetoothEnabled ? BluetoothSpeedSensor() : MockSpeedSensor()// ,
+//                    cadenceSensor: isBluetoothEnabled ? BluetoothCadenceSensor() : MockCadenceSensor()
+//                )
+//                .edgesIgnoringSafeArea(.all)
+                AltWorldView(speedSensor: MockSpeedSensor())
                 Button {
                     isSettingsPresented = true
                 } label: {

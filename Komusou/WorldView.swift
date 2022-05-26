@@ -17,10 +17,11 @@ struct AltWorldView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             WorldView(speed: speed)
+                .edgesIgnoringSafeArea(.all)
             InfoPanelView(speed: speed, cadence: 0)
                 .padding([.top, .leading])
         }
-        .onReceive(speedSensor.speed.compactMap({ $0 })) { speed in
+        .onReceive(speedSensor.speed.compactMap { $0 }) { speed in
             self.speed = speed
         }
     }
@@ -53,7 +54,7 @@ struct InfoPanelView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(Self.speedFormatter.string(from: .init(value: speed))!)[km/h]")
-            Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]" )
+            Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]")
         }
         .foregroundColor(.white)
         .font(.headline)
@@ -76,14 +77,14 @@ struct WorldView: UIViewRepresentable {
         self.speed = speed
     }
 
-    func makeUIView(context: Context) -> _WorldView {
+    func makeUIView(context _: Context) -> _WorldView {
         let worldView = UINib(nibName: "WorldView", bundle: nil).instantiate(withOwner: nil).first as! _WorldView
         worldView.setupViews()
 
         return worldView
     }
 
-    func updateUIView(_ view: _WorldView, context: Context) {
+    func updateUIView(_ view: _WorldView, context _: Context) {
         view.didChangeSpeed(speed)
     }
 }
