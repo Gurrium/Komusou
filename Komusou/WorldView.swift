@@ -58,7 +58,8 @@ struct InfoPanelView: View {
         }
         .foregroundColor(.white)
         .font(.headline)
-        .padding()
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
         .background(.gray)
     }
 }
