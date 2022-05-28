@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D5527D379710000DB0F /* KomusouApp.swift */; };
-		E3178D5827D379710000DB0F /* PlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D5727D379710000DB0F /* PlayView.swift */; };
 		E3178D5A27D379730000DB0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D5927D379730000DB0F /* Assets.xcassets */; };
 		E3178D5D27D379730000DB0F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D5C27D379730000DB0F /* Preview Assets.xcassets */; };
 		E3178D6727D379730000DB0F /* KomusouTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D6627D379730000DB0F /* KomusouTests.swift */; };
@@ -51,7 +50,6 @@
 /* Begin PBXFileReference section */
 		E3178D5227D379710000DB0F /* Komusou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Komusou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3178D5527D379710000DB0F /* KomusouApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KomusouApp.swift; sourceTree = "<group>"; };
-		E3178D5727D379710000DB0F /* PlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayView.swift; sourceTree = "<group>"; };
 		E3178D5927D379730000DB0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E3178D5C27D379730000DB0F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E3178D6227D379730000DB0F /* KomusouTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KomusouTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +124,6 @@
 			children = (
 				E3178D5527D379710000DB0F /* KomusouApp.swift */,
 				E3C77D79282BCE2B0035DDCD /* AppDelegate.swift */,
-				E3178D5727D379710000DB0F /* PlayView.swift */,
 				E347936727D8D342008C5829 /* Settings */,
 				E3178D8327D4B8F80000DB0F /* WorldView.swift */,
 				E3535C5427E365BE0035EDFA /* WorldView.xib */,
@@ -353,7 +350,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E3178D5827D379710000DB0F /* PlayView.swift in Sources */,
 				E347936927D8D35E008C5829 /* TireSettingView.swift in Sources */,
 				E37CE3C8280EDAA300EDFA19 /* BluetoothManager.swift in Sources */,
 				E3C77D7A282BCE2B0035DDCD /* AppDelegate.swift in Sources */,
