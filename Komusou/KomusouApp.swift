@@ -23,12 +23,25 @@ struct KomusouApp: App {
     private var isSettingsPresented = false
     @State
     private var isBluetoothEnabled = true
+    @State
+    private var speed = 0.0
+    private var speedSensor: SpeedSensor {
+        isBluetoothEnabled ? Self.bluetoothSpeedSensor : Self.mockSpeedSensor
+    }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
                 ZStack(alignment: .topTrailing) {
-                    AltWorldView(speedSensor: isBluetoothEnabled ? Self.bluetoothSpeedSensor : Self.mockSpeedSensor)
+                    ZStack(alignment: .topLeading) {
+                        WorldView(speed: speed)
+                            .edgesIgnoringSafeArea(.all)
+                        InfoPanelView(speed: speed, cadence: 0)
+                            .padding([.top, .leading])
+                    }
+                    .onReceive(speedSensor.speed.compactMap { $0 }) { speed in
+                        self.speed = speed
+                    }
                     Button {
                         isSettingsPresented = true
                     } label: {
