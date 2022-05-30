@@ -56,19 +56,53 @@ struct KomusouApp: App {
                     SettingsView()
                 }
                 if !isBluetoothEnabled {
-                    VStack(spacing: 8) {
-                        Text("デモを表示しています")
-                        Text("Bluetoothを有効にしてください")
-                        Button("設定画面を開く") {
-                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.gray.opacity(0.5)) // TODO: 背景色と文字色を修正する
+                    DemoDescriptionView()
                 }
             }.onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
                 self.isBluetoothEnabled = isBluetoothEnabled
             }
+        }
+    }
+
+    private struct DemoDescriptionView: View {
+        var body: some View {
+            // TODO: iikanjinisuru
+            VStack(spacing: 8) {
+                Text("デモを表示しています")
+                Text("Bluetoothを有効にしてください")
+                Button("設定画面を開く") {
+                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                }
+            }
+            .padding()
+            .background(.white)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.gray.opacity(0.5)) // TODO: 背景色と文字色を修正する
+        }
+    }
+
+    struct DemoDescriptionView_Preview: PreviewProvider {
+        static var previews: some View {
+            ZStack {
+                GeometryReader { geometry in
+                    let sideLength = geometry.size.width / 10
+                    let numOfRows = Int(ceil(geometry.size.height / CGFloat(sideLength)))
+                    VStack(spacing: 0) {
+                        ForEach(0..<numOfRows) { i in
+                            HStack(spacing: 0) {
+                                ForEach(0..<10) { j in
+                                    Text("\(i * 10 + j)")
+                                        .foregroundColor(.red)
+                                        .frame(width: sideLength, height: sideLength)
+                                        .background((i + j) % 2 == 0 ? .white : .black)
+                                }
+                            }
+                        }
+                    }
+                }
+                DemoDescriptionView()
+            }
+            .ignoresSafeArea()
         }
     }
 }
