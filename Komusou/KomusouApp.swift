@@ -88,13 +88,12 @@ struct KomusouApp: App {
                     let sideLength = geometry.size.width / 10
                     let numOfRows = Int(ceil(geometry.size.height / CGFloat(sideLength)))
                     VStack(spacing: 0) {
-                        ForEach(0..<numOfRows) { i in
+                        ForEach(0..<numOfRows, id: \.self) { i in
                             HStack(spacing: 0) {
                                 ForEach(0..<10) { j in
-                                    Text("\(i * 10 + j)")
-                                        .foregroundColor(.red)
+                                    Rectangle()
                                         .frame(width: sideLength, height: sideLength)
-                                        .background((i + j) % 2 == 0 ? .white : .black)
+                                        .foregroundColor((i + j) % 2 == 0 ? .white : .black)
                                 }
                             }
                         }
