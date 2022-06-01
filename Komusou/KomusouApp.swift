@@ -52,56 +52,18 @@ struct KomusouApp: App {
                             .foregroundColor(.black)
                     }
                 }
+                .alert("Bluetoothを有効にしてください", isPresented: .constant(!isBluetoothEnabled)) {
+                    Button("設定画面を開く") {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    }
+                    .keyboardShortcut(.defaultAction)
+                } message: {}
                 .sheet(isPresented: $isSettingsPresented) {
                     SettingsView()
-                }
-                if !isBluetoothEnabled {
-                    DemoDescriptionView()
                 }
             }.onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
                 self.isBluetoothEnabled = isBluetoothEnabled
             }
-        }
-    }
-
-    private struct DemoDescriptionView: View {
-        var body: some View {
-            // TODO: iikanjinisuru
-            VStack(spacing: 8) {
-                Text("デモを表示しています")
-                Text("Bluetoothを有効にしてください")
-                Button("設定画面を開く") {
-                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-                }
-            }
-            .padding()
-            .background(.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.gray.opacity(0.5)) // TODO: 背景色と文字色を修正する
-        }
-    }
-
-    struct DemoDescriptionView_Preview: PreviewProvider {
-        static var previews: some View {
-            ZStack {
-                GeometryReader { geometry in
-                    let sideLength = geometry.size.width / 10
-                    let numOfRows = Int(ceil(geometry.size.height / CGFloat(sideLength)))
-                    VStack(spacing: 0) {
-                        ForEach(0..<numOfRows, id: \.self) { i in
-                            HStack(spacing: 0) {
-                                ForEach(0..<10) { j in
-                                    Rectangle()
-                                        .frame(width: sideLength, height: sideLength)
-                                        .foregroundColor((i + j) % 2 == 0 ? .white : .black)
-                                }
-                            }
-                        }
-                    }
-                }
-                DemoDescriptionView()
-            }
-            .ignoresSafeArea()
         }
     }
 }
