@@ -11,9 +11,11 @@ import SwiftUI
 
 struct WorldView: UIViewRepresentable {
     private let speed: Double
+    private let cadence: Int
 
-    init(speed: Double) {
+    init(speed: Double, cadence: Int) {
         self.speed = speed
+        self.cadence = cadence
     }
 
     func makeUIView(context _: Context) -> _WorldView {
@@ -25,21 +27,15 @@ struct WorldView: UIViewRepresentable {
 
     func updateUIView(_ view: _WorldView, context _: Context) {
         view.didChangeSpeed(speed)
+
     }
 }
 
 final class _WorldView: UIView {
-    private static let movingKey = "movingAction"
+    private static let moveKey = "moveAction"
+    private static let rotateKey = "rotateAction"
 
     @IBOutlet var scnView: SCNView!
-
-    // TODO: スピードに揃える
-//    private var cadenceSensor: CadenceSensor!
-//    private var cadence = 0.0 {
-//        didSet {
-//            controlPanel.render(speed: speed, cadence: cadence)
-//        }
-//    }
 
     private var box: SCNNode = {
         let box = SCNNode()
@@ -57,8 +53,13 @@ final class _WorldView: UIView {
     }
 
     func didChangeSpeed(_ speed: Double) {
-        boxBase.removeAction(forKey: Self.movingKey)
-        boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: Self.movingKey)
+        boxBase.removeAction(forKey: Self.moveKey)
+        boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: Self.moveKey)
+    }
+
+    func didChangeCadence(_ cadence: Double) {
+        boxBase.removeAction(forKey: Self.rotateKey)
+        boxBase.runAction(.repeatForever(.rotateBy(x: cadence, y: 0, z: 0, duration: 1)), forKey: Self.rotateKey)
     }
 
     private func setupScnView() {
@@ -109,14 +110,3 @@ final class _WorldView: UIView {
         #endif
     }
 }
-
-// extension _WorldView: CadenceSensorDelegate {
-//    var rotatingKey: String { "rotatingAction" }
-//
-//    func onCadenceUpdate(_ cadence: Double) {
-//        box.removeAction(forKey: rotatingKey)
-//        box.runAction(.repeatForever(.rotateBy(x: cadence, y: 0, z: 0, duration: 1)), forKey: rotatingKey)
-//
-//        self.cadence = cadence
-//    }
-// }
