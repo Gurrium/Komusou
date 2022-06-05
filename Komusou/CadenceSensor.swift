@@ -7,10 +7,6 @@
 
 import Foundation
 
-protocol CadenceSensorDelegate: AnyObject {
-    func onCadenceUpdate(_ speed: Double)
-}
-
 protocol CadenceSensor: AnyObject {
-    var delegate: CadenceSensorDelegate? { get set }
+    var cadence: Published<Int?>.Publisher! { get }
 }

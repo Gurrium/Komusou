@@ -27,7 +27,6 @@ struct WorldView: UIViewRepresentable {
 
     func updateUIView(_ view: _WorldView, context _: Context) {
         view.didChangeSpeed(speed)
-
     }
 }
 
