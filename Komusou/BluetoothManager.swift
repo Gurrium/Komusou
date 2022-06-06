@@ -81,7 +81,9 @@ final class BluetoothManager: NSObject {
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
     private static var sharedBluetoothManager: BluetoothManager!
+    // TODO: enum UserDefaultsKeyを作るとよさそう
     private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
+    private static let kSavedCadenceSensorUUIDKey = "cadence_sensor_uuid_key"
 
     static func shared() -> BluetoothManager {
         precondition(sharedBluetoothManager != nil, "Must call setUp(centralManager:) before use")
@@ -120,6 +122,26 @@ final class BluetoothManager: NSObject {
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
 
+    // MARK: Cadence
+
+    @Published
+    private(set) var cadence: Int?
+    @Published
+    private(set) var connectedCadenceSensor: Peripheral?
+    private var previousCrankEventTime: UInt16?
+    private var previousCumulativeCrankRevolutions: UInt16?
+    private var cadenceMeasurementPauseCounter = 0 {
+        didSet {
+            if cadenceMeasurementPauseCounter > 2 {
+                cadence = 0
+            }
+        }
+    }
+    @AppStorage(kSavedCadenceSensorUUIDKey)
+    private var savedCadenceSensorUUID: UUID?
+    private var connectingCadenceSensorUUID: UUID?
+    private var cadenceSensorPromise: ConnectingWithPeripheralFuture.Promise?
+
     private let centralManager: CentralManager
     private var cancellables = Set<AnyCancellable>()
     private var scannedSensors = [UUID: Peripheral]() {
@@ -142,19 +164,28 @@ final class BluetoothManager: NSObject {
         {
             connectToSpeedSensor(speedSensor)
         }
-        // TODO: ケイデンスセンサー
+        if let savedCadenceSensorUUID = savedCadenceSensorUUID,
+           let cadenceSensor = self.centralManager.retrievePeripherals(withIdentifiers: [savedCadenceSensorUUID]).first
+        {
+            connectToCadenceSensor(cadenceSensor)
+        }
 
         $connectedSpeedSensor.sink { [unowned self] sensor in
             self.savedSpeedSensorUUID = sensor?.identifier
         }
         .store(in: &cancellables)
+        $connectedCadenceSensor.sink { [unowned self] sensor in
+            self.savedCadenceSensorUUID = sensor?.identifier
+        }
+        .store(in: &cancellables)
     }
 
     deinit {
-        // TODO:
-        // ケイデンスセンサーもやる
         if let connectedSpeedSensor = connectedSpeedSensor {
             centralManager.cancelPeripheralConnection(connectedSpeedSensor)
+        }
+        if let connectedCadenceSensor = connectedCadenceSensor {
+            centralManager.cancelPeripheralConnection(connectedCadenceSensor)
         }
 
         stopScan()
@@ -192,6 +223,27 @@ final class BluetoothManager: NSObject {
         connectingSpeedSensorUUID = speedSensor.identifier
         centralManager.connect(speedSensor, options: nil)
     }
+
+    func connectToCadenceSensor(uuid: UUID) -> ConnectingWithPeripheralFuture {
+        guard let peripheral = scannedSensors[uuid] else {
+            return .init { $0(.failure(.init())) }
+        }
+
+        return .init { [weak self] promise in
+            self?.cadenceSensorPromise = promise
+
+            self?.connectToCadenceSensor(peripheral)
+        }
+    }
+
+    private func connectToCadenceSensor(_ cadenceSensor: Peripheral) {
+        if let cadenceSensor = connectedCadenceSensor {
+            centralManager.cancelPeripheralConnection(cadenceSensor)
+        }
+
+        connectingCadenceSensorUUID = cadenceSensor.identifier
+        centralManager.connect(cadenceSensor, options: nil)
+    }
 }
 
 extension BluetoothManager: CentralManagerDelegate {
@@ -222,6 +274,13 @@ extension BluetoothManager: CentralManagerDelegate {
 
             peripheral.delegate = self
             peripheral.discoverServices([.cyclingSpeedAndCadence])
+        case connectingCadenceSensorUUID:
+            connectingCadenceSensorUUID = nil
+            connectedCadenceSensor = peripheral
+            cadenceSensorPromise?(.success(()))
+
+            peripheral.delegate = self
+            peripheral.discoverServices([.cyclingSpeedAndCadence])
         default:
             centralManager.cancelPeripheralConnection(peripheral)
         }
@@ -236,6 +295,9 @@ extension BluetoothManager: CentralManagerDelegate {
         case connectingSpeedSensorUUID:
             connectingSpeedSensorUUID = nil
             speedSensorPromise?(.failure(.init()))
+        case connectingCadenceSensorUUID:
+            connectingCadenceSensorUUID = nil
+            cadenceSensorPromise?(.failure(.init()))
         default:
             break
         }
@@ -279,6 +341,10 @@ extension BluetoothManager: PeripheralDelegate {
             speedMeasurementPauseCounter = 0
 
             speed = retrieved
+        } else if let retrieved = parseCadence(from: value) {
+            cadenceMeasurementPauseCounter = 0
+
+            cadence = retrieved
         } else {
             speedMeasurementPauseCounter += 1
         }
@@ -313,5 +379,32 @@ extension BluetoothManager: PeripheralDelegate {
         let revolutionsPerSec = Double(cumulativeWheelRevolutions - previousCumulativeWheelRevolutions) / (Double(duration) / 1024)
 
         return revolutionsPerSec * Double(tireSize.circumference) * 3600 / 1_000_000 // [km/h]
+    }
+
+    private func parseCadence(from value: [UInt8]) -> Int? {
+        precondition(value[0] & 0b0010 > 0, "Crank Revolution Data Present Flag is not set")
+
+        let cumulativeCrankRevolutions = (UInt16(value[2]) << 8) + UInt16(value[1])
+        let crankEventTime = (UInt16(value[4]) << 8) + UInt16(value[3])
+
+        defer {
+            previousCumulativeCrankRevolutions = cumulativeCrankRevolutions
+            previousCrankEventTime = crankEventTime
+        }
+
+        guard let previousCumulativeCrankRevolutions = previousCumulativeCrankRevolutions,
+              let previousCrankEventTime = previousCrankEventTime else { return nil }
+
+        let duration: UInt16
+
+        if previousCrankEventTime > crankEventTime {
+            duration = UInt16((UInt32(crankEventTime) + UInt32(UInt16.max) + 1) - UInt32(previousCrankEventTime))
+        } else {
+            duration = crankEventTime - previousCrankEventTime
+        }
+
+        guard duration > 0 else { return nil }
+
+        return Int((Double(cumulativeCrankRevolutions - previousCumulativeCrankRevolutions) * 60) / (Double(duration) / 1024))
     }
 }

@@ -7,10 +7,9 @@
 
 import Combine
 import CoreBluetooth
-import Foundation
 
 final class BluetoothSpeedSensor: SpeedSensor {
-    var speed: Published<Double?>.Publisher!
+    private(set) var speed: Published<Double?>.Publisher!
     @Published
     private var _speed: Double?
 
