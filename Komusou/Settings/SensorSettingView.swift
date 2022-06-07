@@ -41,6 +41,7 @@ struct SensorSettingView: View {
         let sheetContent: () -> Content
 
         var body: some View {
+            // TODO: Bluetoothが有効になっていないときの処理
             Button {
                 isSheetPresented = true
             } label: {

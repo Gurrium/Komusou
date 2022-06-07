@@ -43,7 +43,7 @@ struct KomusouApp: App {
                     ZStack(alignment: .topLeading) {
                         WorldView(speed: speed, cadence: cadence)
                             .edgesIgnoringSafeArea(.all)
-                        InfoPanelView(speed: speed, cadence: 0)
+                        InfoPanelView(speed: speed, cadence: cadence)
                             .padding([.top, .leading])
                     }
                     .onReceive(speedSensor.speed.compactMap { $0 }) { speed in

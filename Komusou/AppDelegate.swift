@@ -21,7 +21,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         BluetoothManager.setUp(centralManager: centralManager)
 
         #if DEBUG
-            (centralManager as! CentralManagerMock).state = .poweredOff
+            (centralManager as! CentralManagerMock).state = .poweredOn
             BluetoothManager.shared().centralManagerDidUpdateState(centralManager)
         #endif
 
