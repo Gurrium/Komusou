@@ -14,6 +14,10 @@ struct SensorSettingView: View {
     var isSpeedSensorSheetPresented = false
     @State
     var speedSensorName: String?
+    @State
+    var isCadenceSensorSheetPresented = false
+    @State
+    var cadenceSensorName: String?
 
     var body: some View {
         List {
@@ -24,11 +28,20 @@ struct SensorSettingView: View {
             ) {
                 SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented)
             }
-            // TODO: ケイデンスセンサー
+            SensorRow(
+                isSheetPresented: $isCadenceSensorSheetPresented,
+                sensorType: "ケイデンスセンサー",
+                sensorName: cadenceSensorName ?? "未接続"
+            ) {
+                SensorSelectingView(isSheetPresented: $isCadenceSensorSheetPresented)
+            }
         }
         .listStyle(.insetGrouped)
         .onReceive(BluetoothManager.shared().$connectedSpeedSensor.map { $0?.name }) { speedSensorName in
             self.speedSensorName = speedSensorName
+        }
+        .onReceive(BluetoothManager.shared().$connectedCadenceSensor.map { $0?.name }) { cadenceSensorName in
+            self.cadenceSensorName = cadenceSensorName
         }
     }
 
