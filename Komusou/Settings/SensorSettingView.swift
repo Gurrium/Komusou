@@ -11,13 +11,15 @@ import SwiftUI
 
 struct SensorSettingView: View {
     @State
-    var isSpeedSensorSheetPresented = false
+    private var isSpeedSensorSheetPresented = false
     @State
-    var speedSensorName: String?
+    private var speedSensorName: String?
     @State
-    var isCadenceSensorSheetPresented = false
+    private var isCadenceSensorSheetPresented = false
     @State
-    var cadenceSensorName: String?
+    private var cadenceSensorName: String?
+    @State
+    private var isBluetoothEnabled = true
 
     var body: some View {
         List {
@@ -37,11 +39,20 @@ struct SensorSettingView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .alert("Bluetoothを有効にしてください", isPresented: .constant(!isBluetoothEnabled)) {
+            Button("設定画面を開く") {
+                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+            }
+            .keyboardShortcut(.defaultAction)
+        } message: {}
         .onReceive(BluetoothManager.shared().$connectedSpeedSensor.map { $0?.name }) { speedSensorName in
             self.speedSensorName = speedSensorName
         }
         .onReceive(BluetoothManager.shared().$connectedCadenceSensor.map { $0?.name }) { cadenceSensorName in
             self.cadenceSensorName = cadenceSensorName
+        }
+        .onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
+            self.isBluetoothEnabled = isBluetoothEnabled
         }
     }
 
@@ -54,7 +65,6 @@ struct SensorSettingView: View {
         let sheetContent: () -> Content
 
         var body: some View {
-            // TODO: Bluetoothが有効になっていないときの処理
             Button {
                 isSheetPresented = true
             } label: {
