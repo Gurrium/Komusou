@@ -62,12 +62,7 @@ struct KomusouApp: App {
                             .foregroundColor(.black)
                     }
                 }
-                .alert("Bluetoothを有効にしてください", isPresented: .constant(!isBluetoothEnabled)) {
-                    Button("設定画面を開く") {
-                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-                    }
-                    .keyboardShortcut(.defaultAction)
-                } message: {}
+                .alert(isBluetoothDisabled: .constant(!isBluetoothEnabled))
                 .sheet(isPresented: $isSettingsPresented) {
                     SettingsView()
                 }

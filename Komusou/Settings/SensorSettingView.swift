@@ -39,12 +39,7 @@ struct SensorSettingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .alert("Bluetoothを有効にしてください", isPresented: .constant(!isBluetoothEnabled)) {
-            Button("設定画面を開く") {
-                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-            }
-            .keyboardShortcut(.defaultAction)
-        } message: {}
+        .alert(isBluetoothDisabled: .constant(!isBluetoothEnabled))
         .onReceive(BluetoothManager.shared().$connectedSpeedSensor.map { $0?.name }) { speedSensorName in
             self.speedSensorName = speedSensorName
         }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E301544E2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = E301544D2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift */; };
 		E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D5527D379710000DB0F /* KomusouApp.swift */; };
 		E3178D5A27D379730000DB0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D5927D379730000DB0F /* Assets.xcassets */; };
 		E3178D5D27D379730000DB0F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D5C27D379730000DB0F /* Preview Assets.xcassets */; };
@@ -49,6 +50,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E301544D2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AlertForEnablingBluetooth.swift"; sourceTree = "<group>"; };
 		E3178D5227D379710000DB0F /* Komusou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Komusou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3178D5527D379710000DB0F /* KomusouApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KomusouApp.swift; sourceTree = "<group>"; };
 		E3178D5927D379730000DB0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -101,6 +103,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E301544C285318F10007D4F3 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				E301544D2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		E3178D4927D379710000DB0F = {
 			isa = PBXGroup;
 			children = (
@@ -130,6 +140,7 @@
 				E3178D8327D4B8F80000DB0F /* WorldView.swift */,
 				E371AD3228438213001CF736 /* InfoPanelView.swift */,
 				E3535C5427E365BE0035EDFA /* WorldView.xib */,
+				E301544C285318F10007D4F3 /* Extensions */,
 				E36508A127E212DE00BEE34F /* SpeedSensor.swift */,
 				E3D03ECA281AB9CE00259E9B /* Mocks.swift */,
 				E3535C4E27E3622F0035EDFA /* CadenceSensor.swift */,
@@ -360,6 +371,7 @@
 				E3178D8B27D7753C0000DB0F /* SettingsView.swift in Sources */,
 				E3535C4F27E3622F0035EDFA /* CadenceSensor.swift in Sources */,
 				E383923C27EDE965008F156F /* SensorSettingView.swift in Sources */,
+				E301544E2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift in Sources */,
 				E3535C5127E362600035EDFA /* BluetoothCadenceSensor.swift in Sources */,
 				E36508A427E2132400BEE34F /* BluetoothSpeedSensor.swift in Sources */,
 				E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */,
