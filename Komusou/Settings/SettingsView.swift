@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-// TODO: kTireSizeKeyの定義はここが適切？
-let kTireSizeKey = "tireSize"
 struct SettingsView: View {
-    @AppStorage(kTireSizeKey) var tireSize: TireSize = .standard(.iso25_622)
+    @AppStorage(UserDefaultsKey.tireSize.rawValue) var tireSize: TireSize = .standard(.iso25_622)
 
     var body: some View {
         NavigationView {

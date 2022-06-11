@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E301544E2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = E301544D2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift */; };
+		E30154502854D2DE0007D4F3 /* UserDefaultsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E301544F2854D2DE0007D4F3 /* UserDefaultsKey.swift */; };
 		E3178D5627D379710000DB0F /* KomusouApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3178D5527D379710000DB0F /* KomusouApp.swift */; };
 		E3178D5A27D379730000DB0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D5927D379730000DB0F /* Assets.xcassets */; };
 		E3178D5D27D379730000DB0F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3178D5C27D379730000DB0F /* Preview Assets.xcassets */; };
@@ -51,6 +52,7 @@
 
 /* Begin PBXFileReference section */
 		E301544D2853197B0007D4F3 /* View+AlertForEnablingBluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AlertForEnablingBluetooth.swift"; sourceTree = "<group>"; };
+		E301544F2854D2DE0007D4F3 /* UserDefaultsKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKey.swift; sourceTree = "<group>"; };
 		E3178D5227D379710000DB0F /* Komusou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Komusou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3178D5527D379710000DB0F /* KomusouApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KomusouApp.swift; sourceTree = "<group>"; };
 		E3178D5927D379730000DB0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				E3535C4E27E3622F0035EDFA /* CadenceSensor.swift */,
 				E36508A327E2132400BEE34F /* BluetoothSpeedSensor.swift */,
 				E37CE3C7280EDAA300EDFA19 /* BluetoothManager.swift */,
+				E301544F2854D2DE0007D4F3 /* UserDefaultsKey.swift */,
 				E3535C5227E3646C0035EDFA /* CBUUID+AssignedNumbers.swift */,
 				E3535C5027E362600035EDFA /* BluetoothCadenceSensor.swift */,
 				E3178D8527D4BB930000DB0F /* art.scnassets */,
@@ -364,6 +367,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E30154502854D2DE0007D4F3 /* UserDefaultsKey.swift in Sources */,
 				E347936927D8D35E008C5829 /* TireSettingView.swift in Sources */,
 				E37CE3C8280EDAA300EDFA19 /* BluetoothManager.swift in Sources */,
 				E3C77D7A282BCE2B0035DDCD /* AppDelegate.swift in Sources */,

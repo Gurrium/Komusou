@@ -81,9 +81,6 @@ final class BluetoothManager: NSObject {
     typealias ConnectingWithPeripheralFuture = Future<Void, ConnectingWithPeripheralError>
 
     private static var sharedBluetoothManager: BluetoothManager!
-    // TODO: enum UserDefaultsKeyを作るとよさそう
-    private static let kSavedSpeedSensorUUIDKey = "speed_sensor_uuid_key"
-    private static let kSavedCadenceSensorUUIDKey = "cadence_sensor_uuid_key"
 
     static func shared() -> BluetoothManager {
         precondition(sharedBluetoothManager != nil, "Must call setUp(centralManager:) before use")
@@ -115,9 +112,9 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-    @AppStorage(kTireSizeKey)
+    @AppStorage(UserDefaultsKey.tireSize.rawValue)
     private var tireSize: TireSize = .standard(.iso25_622)
-    @AppStorage(kSavedSpeedSensorUUIDKey)
+    @AppStorage(UserDefaultsKey.savedSpeedSensorUUID.rawValue)
     private var savedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
@@ -137,7 +134,7 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-    @AppStorage(kSavedCadenceSensorUUIDKey)
+    @AppStorage(UserDefaultsKey.savedCadenceSensorUUID.rawValue)
     private var savedCadenceSensorUUID: UUID?
     private var connectingCadenceSensorUUID: UUID?
     private var cadenceSensorPromise: ConnectingWithPeripheralFuture.Promise?
