@@ -88,6 +88,15 @@ struct SensorSelectingView: View {
 
     var body: some View {
         List {
+            if true { // TODO: 接続済みのセンサーがあったらという条件
+                Section {
+                    Button {
+                        // TODO: 切断する
+                    } label: {
+                        Text("切断する")
+                    }
+                }
+            }
             Section {
                 if !sensorNames.isEmpty {
                     ForEach(Array(sensorNames.keys), id: \.self) { key in
@@ -113,6 +122,12 @@ struct SensorSelectingView: View {
         }
         .onAppear(perform: BluetoothManager.shared().scanForSensors)
         .onDisappear(perform: BluetoothManager.shared().stopScan)
+    }
+}
+
+struct SensorSelectingView_Preview: PreviewProvider {
+    static var previews: some View {
+        SensorSelectingView(isSheetPresented: .constant(true))
     }
 }
 
