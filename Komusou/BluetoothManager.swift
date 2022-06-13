@@ -20,7 +20,7 @@ protocol CentralManager: AnyObject {
     func stopScan()
     func retrievePeripherals(withIdentifiers: [UUID]) -> [Peripheral]
     func connect(_ peripheral: Peripheral, options: [String: Any]?)
-    func cancelPeripheralConnection(_ identifier: Peripheral)
+    func cancelPeripheralConnection(_ peripheral: Peripheral)
 }
 
 extension CBCentralManager: CentralManager {
@@ -32,8 +32,8 @@ extension CBCentralManager: CentralManager {
         connect(peripheral as! CBPeripheral, options: options)
     }
 
-    func cancelPeripheralConnection(_ identifier: Peripheral) {
-        cancelPeripheralConnection(identifier as! CBPeripheral)
+    func cancelPeripheralConnection(_ peripheral: Peripheral) {
+        cancelPeripheralConnection(peripheral as! CBPeripheral)
     }
 }
 
@@ -241,6 +241,10 @@ final class BluetoothManager: NSObject {
         connectingCadenceSensorUUID = cadenceSensor.identifier
         centralManager.connect(cadenceSensor, options: nil)
     }
+
+    func cancelConnection(_ peripheral: Peripheral) {
+        centralManager.cancelPeripheralConnection(peripheral)
+    }
 }
 
 extension BluetoothManager: CentralManagerDelegate {
@@ -303,6 +307,8 @@ extension BluetoothManager: CentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         centralManager(central as CentralManager, didFailToConnect: peripheral as Peripheral, error: error)
     }
+
+    // TODO: 切断したときのデリゲートメソッドを実装する
 }
 
 extension BluetoothManager: PeripheralDelegate {

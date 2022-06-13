@@ -74,10 +74,10 @@ class CentralManagerMock: CentralManager {
 
     private(set) var cancelPeripheralConnectionCallCount = 0
     var cancelPeripheralConnectionHandler: ((Peripheral) -> ())?
-    func cancelPeripheralConnection(_ identifier: Peripheral)  {
+    func cancelPeripheralConnection(_ peripheral: Peripheral)  {
         cancelPeripheralConnectionCallCount += 1
         if let cancelPeripheralConnectionHandler = cancelPeripheralConnectionHandler {
-            cancelPeripheralConnectionHandler(identifier)
+            cancelPeripheralConnectionHandler(peripheral)
         }
         
     }
