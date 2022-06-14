@@ -308,7 +308,17 @@ extension BluetoothManager: CentralManagerDelegate {
         centralManager(central as CentralManager, didFailToConnect: peripheral as Peripheral, error: error)
     }
 
-    // TODO: 切断したときのデリゲートメソッドを実装する
+    func centralManager(_: CentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error _: Error?) {
+        if connectedSpeedSensor?.identifier == peripheral.identifier {
+            connectedSpeedSensor = nil
+        } else if connectedCadenceSensor?.identifier == peripheral.identifier {
+            connectedCadenceSensor = nil
+        }
+    }
+
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        centralManager(central as CentralManager, didDisconnectPeripheral: peripheral, error: error)
+    }
 }
 
 extension BluetoothManager: PeripheralDelegate {
