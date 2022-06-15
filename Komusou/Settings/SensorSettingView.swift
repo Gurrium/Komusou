@@ -96,6 +96,7 @@ struct SensorSelectingView: View {
                         state.cnacelConnection(connectedSensor)
                     } label: {
                         Text("切断する")
+                            .foregroundColor(.blue)
                     }
                 }
             }
