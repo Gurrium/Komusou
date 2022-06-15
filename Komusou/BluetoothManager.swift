@@ -66,8 +66,9 @@ extension CBCharacteristic: Characteristic {}
 protocol CentralManagerDelegate: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CentralManager)
     func centralManager(_ central: CentralManager, didDiscover peripheral: Peripheral, advertisementData: [String: Any], rssi RSSI: NSNumber)
-    func centralManager(_: CentralManager, didConnect: Peripheral)
-    func centralManager(_: CentralManager, didFailToConnect: Peripheral, error: Error?)
+    func centralManager(_ central: CentralManager, didConnect peripheral: Peripheral)
+    func centralManager(_ central: CentralManager, didFailToConnect peripheral: Peripheral, error: Error?)
+    func centralManager(_ central: CentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?)
 }
 
 protocol PeripheralDelegate: CBPeripheralDelegate {
