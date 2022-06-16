@@ -9,7 +9,7 @@ import SwiftUI
 import UIKit
 
 extension View {
-    func alert(isBluetoothDisabled: Binding<Bool>) -> some View {
+    func alertForDisabledBluetooth(isBluetoothDisabled: Binding<Bool>) -> some View {
         alert("Bluetoothを有効にしてください", isPresented: isBluetoothDisabled) {
             Button("設定画面を開く") {
                 UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)

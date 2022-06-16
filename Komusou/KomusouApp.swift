@@ -62,7 +62,7 @@ struct KomusouApp: App {
                             .foregroundColor(.black)
                     }
                 }
-                .alert(isBluetoothDisabled: .constant(!isBluetoothEnabled))
+                .alertForDisabledBluetooth(isBluetoothDisabled: .constant(!isBluetoothEnabled))
                 .sheet(isPresented: $isSettingsPresented) {
                     SettingsView()
                 }

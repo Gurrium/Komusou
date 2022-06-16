@@ -39,7 +39,7 @@ struct SensorSettingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .alert(isBluetoothDisabled: .constant(!isBluetoothEnabled))
+        .alertForDisabledBluetooth(isBluetoothDisabled: .constant(!isBluetoothEnabled))
         .onReceive(BluetoothManager.shared().$connectedSpeedSensor) { speedSensor in
             self.connectedSpeedSensor = speedSensor
         }
