@@ -20,6 +20,37 @@ struct SensorSettingView: View {
     private var connectedCadenceSensor: Peripheral?
     @State
     private var isBluetoothEnabled = true
+    @StateObject
+    private var state = ViewState()
+
+    // TODO: 実装する
+    private class ViewState: ObservableObject {
+        private var cancellables = Set<AnyCancellable>()
+
+        func connectToSpeedSensor(uuid: UUID) {
+            BluetoothManager.shared().connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
+                switch result {
+                case .failure:
+                    // failure
+                case .finished:
+                    // finished
+                }
+            } receiveValue: { _ in }
+                .store(in: &cancellables)
+        }
+
+        func connectToCadenceSensor(uuid: UUID) {
+            BluetoothManager.shared().connectedCadenceSensor(uuid: uuid).sink { [unowned self] result in
+                switch result {
+                case .failure:
+                    // failure
+                case .finished:
+                    // finished
+                }
+            } receiveValue: { _ in }
+                .store(in: &cancellables)
+        }
+    }
 
     var body: some View {
         List {
@@ -28,14 +59,22 @@ struct SensorSettingView: View {
                 sensorType: "スピードセンサー",
                 sensorName: connectedSpeedSensor?.name ?? "未接続"
             ) {
-                SensorSelectingView(isSheetPresented: $isSpeedSensorSheetPresented, connectedSensor: BluetoothManager.shared().connectedSpeedSensor)
+                SensorSelectingView(
+                    isSheetPresented: $isSpeedSensorSheetPresented,
+                    connectedSensor: BluetoothManager.shared().connectedSpeedSensor,
+                    didSelectSensor: state.connectToSpeedSensor
+                )
             }
             SensorRow(
                 isSheetPresented: $isCadenceSensorSheetPresented,
                 sensorType: "ケイデンスセンサー",
                 sensorName: connectedCadenceSensor?.name ?? "未接続"
             ) {
-                SensorSelectingView(isSheetPresented: $isCadenceSensorSheetPresented, connectedSensor: BluetoothManager.shared().connectedCadenceSensor)
+                SensorSelectingView(
+                    isSheetPresented: $isCadenceSensorSheetPresented,
+                    connectedSensor: BluetoothManager.shared().connectedCadenceSensor,
+                    didSelectSensor: state.connectToCadenceSensor
+                )
             }
         }
         .listStyle(.insetGrouped)
@@ -77,15 +116,17 @@ struct SensorSettingView: View {
 }
 
 struct SensorSelectingView: View {
-    @ObservedObject
-    private var state: SensorSelectingViewState
     @State
     private var sensorNames = [UUID: String]()
+    @Binding
+    private var isSheetPresented: Binding<Bool>
+    private var didSelectSensor: (UUID) -> Void
     private var connectedSensor: Peripheral?
 
-    init(isSheetPresented: Binding<Bool>, connectedSensor: Peripheral?) {
-        state = .init(isSheetPresented: isSheetPresented)
+    init(isSheetPresented: Binding<Bool>, connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
+        self.isSheetPresented = isSheetPresented
         self.connectedSensor = connectedSensor
+        self.didSelectSensor = didSelectSensor
     }
 
     var body: some View {
@@ -93,7 +134,7 @@ struct SensorSelectingView: View {
             if let connectedSensor = connectedSensor {
                 Section {
                     Button {
-                        state.cnacelConnection(connectedSensor)
+                        BluetoothManager.shared().cancelConnection(connectedSensor)
                     } label: {
                         Text("切断する")
                             .foregroundColor(.blue)
@@ -105,7 +146,7 @@ struct SensorSelectingView: View {
                     ForEach(Array(sensorNames.keys), id: \.self) { key in
                         let sensorName = sensorNames[key]!
                         Button {
-                            state.connectToSpeedSensor(uuid: key)
+                            self.didSelectSensor(key)
                         } label: {
                             HStack {
                                 Text(sensorName)
@@ -128,7 +169,6 @@ struct SensorSelectingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .alert("接続に失敗しました", isPresented: $state.didError) {}
         .onReceive(BluetoothManager.shared().$sensorNames) {
             sensorNames = $0
         }
@@ -137,39 +177,14 @@ struct SensorSelectingView: View {
     }
 }
 
-class SensorSelectingViewState: ObservableObject {
-    @Published
-    var didError = false
-    @Binding
-    var isSheetPresented: Bool
-
-    private var cancellables = Set<AnyCancellable>()
-
-    init(isSheetPresented: Binding<Bool>) {
-        _isSheetPresented = isSheetPresented
-    }
-
-    func connectToSpeedSensor(uuid: UUID) {
-        BluetoothManager.shared().connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
-            switch result {
-            case .failure:
-                self.didError = true
-            case .finished:
-                self.isSheetPresented = false
-            }
-        } receiveValue: { _ in }
-            .store(in: &cancellables)
-    }
-
-    func cnacelConnection(_ peripheral: Peripheral) {
-        BluetoothManager.shared().cancelConnection(peripheral)
-    }
-}
-
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        SensorSelectingView(isSheetPresented: .constant(false), connectedSensor: nil)
-            .previewLayout(.sizeThatFits)
+        SensorSelectingView(
+            isSheetPresented: .constant(true),
+            connectedSensor: nil,
+            didSelectSensor: { _ in }
+        )
+        .previewLayout(.sizeThatFits)
     }
 }
 
