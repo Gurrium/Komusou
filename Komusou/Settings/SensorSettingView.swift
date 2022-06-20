@@ -11,11 +11,7 @@ import SwiftUI
 
 struct SensorSettingView: View {
     @State
-    private var isSpeedSensorSheetPresented = false
-    @State
     private var connectedSpeedSensor: Peripheral?
-    @State
-    private var isCadenceSensorSheetPresented = false
     @State
     private var connectedCadenceSensor: Peripheral?
     @State
@@ -25,27 +21,35 @@ struct SensorSettingView: View {
 
     // TODO: 実装する
     private class ViewState: ObservableObject {
+        @Published
+        var isSpeedSensorSheetPresented = false
+        @Published
+        var isCadenceSensorSheetPresented = false
+        @Published
+        var didError = false
+
         private var cancellables = Set<AnyCancellable>()
 
         func connectToSpeedSensor(uuid: UUID) {
             BluetoothManager.shared().connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
                 switch result {
                 case .failure:
-                    // failure
+                    self.didError = true
                 case .finished:
-                    // finished
+                    isSpeedSensorSheetPresented = false
                 }
             } receiveValue: { _ in }
                 .store(in: &cancellables)
         }
 
         func connectToCadenceSensor(uuid: UUID) {
-            BluetoothManager.shared().connectedCadenceSensor(uuid: uuid).sink { [unowned self] result in
+            // TODO: 接続が完了する前(cancelされたとき？)にdisconnectする必要がありそう
+            BluetoothManager.shared().connectToCadenceSensor(uuid: uuid).sink { [unowned self] result in
                 switch result {
                 case .failure:
-                    // failure
+                    self.didError = true
                 case .finished:
-                    // finished
+                    isCadenceSensorSheetPresented = false
                 }
             } receiveValue: { _ in }
                 .store(in: &cancellables)
@@ -55,23 +59,23 @@ struct SensorSettingView: View {
     var body: some View {
         List {
             SensorRow(
-                isSheetPresented: $isSpeedSensorSheetPresented,
+                isSheetPresented: $state.isSpeedSensorSheetPresented,
                 sensorType: "スピードセンサー",
                 sensorName: connectedSpeedSensor?.name ?? "未接続"
             ) {
                 SensorSelectingView(
-                    isSheetPresented: $isSpeedSensorSheetPresented,
+                    isSheetPresented: $state.isSpeedSensorSheetPresented,
                     connectedSensor: BluetoothManager.shared().connectedSpeedSensor,
                     didSelectSensor: state.connectToSpeedSensor
                 )
             }
             SensorRow(
-                isSheetPresented: $isCadenceSensorSheetPresented,
+                isSheetPresented: $state.isCadenceSensorSheetPresented,
                 sensorType: "ケイデンスセンサー",
                 sensorName: connectedCadenceSensor?.name ?? "未接続"
             ) {
                 SensorSelectingView(
-                    isSheetPresented: $isCadenceSensorSheetPresented,
+                    isSheetPresented: $state.isCadenceSensorSheetPresented,
                     connectedSensor: BluetoothManager.shared().connectedCadenceSensor,
                     didSelectSensor: state.connectToCadenceSensor
                 )
@@ -79,6 +83,7 @@ struct SensorSettingView: View {
         }
         .listStyle(.insetGrouped)
         .alertForDisabledBluetooth(isBluetoothDisabled: .constant(!isBluetoothEnabled))
+        .alert("接続に失敗しました", isPresented: $state.didError) {}
         .onReceive(BluetoothManager.shared().$connectedSpeedSensor) { speedSensor in
             self.connectedSpeedSensor = speedSensor
         }
@@ -181,6 +186,7 @@ struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSelectingView(
             isSheetPresented: .constant(true),
+            didError: .constant(false),
             connectedSensor: nil,
             didSelectSensor: { _ in }
         )
