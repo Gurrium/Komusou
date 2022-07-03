@@ -124,12 +124,12 @@ struct SensorSelectingView: View {
     @State
     private var sensorNames = [UUID: String]()
     @Binding
-    private var isSheetPresented: Binding<Bool>
+    private var isSheetPresented: Bool
     private var didSelectSensor: (UUID) -> Void
     private var connectedSensor: Peripheral?
 
     init(isSheetPresented: Binding<Bool>, connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
-        self.isSheetPresented = isSheetPresented
+        _isSheetPresented = isSheetPresented
         self.connectedSensor = connectedSensor
         self.didSelectSensor = didSelectSensor
     }
@@ -186,7 +186,6 @@ struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSelectingView(
             isSheetPresented: .constant(true),
-            didError: .constant(false),
             connectedSensor: nil,
             didSelectSensor: { _ in }
         )
