@@ -38,36 +38,35 @@ struct KomusouApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                ZStack(alignment: .topTrailing) {
-                    ZStack(alignment: .topLeading) {
-                        WorldView(speed: speed, cadence: cadence)
-                            .edgesIgnoringSafeArea(.all)
-                        InfoPanelView(speed: speed, cadence: cadence)
-                            .padding([.top, .leading])
-                    }
-                    .onReceive(speedSensor.speed.compactMap { $0 }) { speed in
-                        self.speed = speed
-                    }
-                    .onReceive(cadenceSensor.cadence.compactMap { $0 }) { cadence in
-                        self.cadence = cadence
-                    }
-                    Button {
-                        isSettingsPresented = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .resizable()
-                            .padding(8)
-                            .frame(width: 44, height: 44)
-                            .foregroundColor(.black)
-                    }
+            ZStack(alignment: .topTrailing) {
+                ZStack(alignment: .topLeading) {
+                    WorldView(speed: speed, cadence: cadence)
+                        .edgesIgnoringSafeArea(.all)
+                    InfoPanelView(speed: speed, cadence: cadence)
+                        .padding([.top, .leading])
                 }
-                .alertForDisabledBluetooth(isBluetoothDisabled: .constant(!isBluetoothEnabled))
-                .sheet(isPresented: $isSettingsPresented) {
-                    SettingsView()
+                .onReceive(speedSensor.speed.compactMap { $0 }) { speed in
+                    self.speed = speed
                 }
-            }.onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
+                .onReceive(cadenceSensor.cadence.compactMap { $0 }) { cadence in
+                    self.cadence = cadence
+                }
+                Button {
+                    isSettingsPresented = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .resizable()
+                        .padding(8)
+                        .frame(width: 44, height: 44)
+                        .foregroundColor(.black)
+                }
+            }
+            .alertForDisabledBluetooth(isBluetoothDisabled: .constant(!isBluetoothEnabled))
+            .onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
                 self.isBluetoothEnabled = isBluetoothEnabled
+            }
+            .sheet(isPresented: $isSettingsPresented) {
+                SettingsView()
             }
         }
     }
