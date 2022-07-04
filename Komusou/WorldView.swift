@@ -27,6 +27,7 @@ struct WorldView: UIViewRepresentable {
 
     func updateUIView(_ view: _WorldView, context _: Context) {
         view.didChangeSpeed(speed)
+        view.didChangeCadence(cadence)
     }
 }
 
@@ -56,9 +57,9 @@ final class _WorldView: UIView {
         boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: Self.moveKey)
     }
 
-    func didChangeCadence(_ cadence: Double) {
+    func didChangeCadence(_ cadence: Int) {
         boxBase.removeAction(forKey: Self.rotateKey)
-        boxBase.runAction(.repeatForever(.rotateBy(x: cadence, y: 0, z: 0, duration: 1)), forKey: Self.rotateKey)
+        boxBase.runAction(.repeatForever(.rotateBy(x: Double(cadence), y: 0, z: 0, duration: 1)), forKey: Self.rotateKey)
     }
 
     private func setupScnView() {
