@@ -11,19 +11,15 @@ struct InfoPanelView: View {
     private static let speedFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.usesSignificantDigits = true
-        formatter.minimumSignificantDigits = 3
-        formatter.maximumSignificantDigits = 3
+        formatter.maximumFractionDigits = 1
+        formatter.minimumFractionDigits = 1
 
         return formatter
     }()
 
     private static let cadenceFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .none
-        formatter.usesSignificantDigits = true
-        formatter.minimumSignificantDigits = 2
-        formatter.maximumSignificantDigits = 3
+        formatter.numberStyle = .decimal
 
         return formatter
     }()
