@@ -77,7 +77,7 @@ struct TireSettingView: View {
                         } label: {
                             HStack {
                                 Text(size.label)
-                                    .foregroundColor(.init(UIColor.label))
+                                    .foregroundColor(.primary)
                                 Spacer()
                                 if tireSize == .standard(size) {
                                     Image(systemName: "checkmark")
