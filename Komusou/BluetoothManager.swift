@@ -113,9 +113,9 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-    @AppStorage(UserDefaultsKey.tireSize.rawValue)
+    @AppStorage(UserDefaultsKey.tireSize)
     private var tireSize: TireSize = .standard(.iso25_622)
-    @AppStorage(UserDefaultsKey.savedSpeedSensorUUID.rawValue)
+    @AppStorage(UserDefaultsKey.savedSpeedSensorUUID)
     private var savedSpeedSensorUUID: UUID?
     private var connectingSpeedSensorUUID: UUID?
     private var speedSensorPromise: ConnectingWithPeripheralFuture.Promise?
@@ -135,7 +135,7 @@ final class BluetoothManager: NSObject {
             }
         }
     }
-    @AppStorage(UserDefaultsKey.savedCadenceSensorUUID.rawValue)
+    @AppStorage(UserDefaultsKey.savedCadenceSensorUUID)
     private var savedCadenceSensorUUID: UUID?
     private var connectingCadenceSensorUUID: UUID?
     private var cadenceSensorPromise: ConnectingWithPeripheralFuture.Promise?
