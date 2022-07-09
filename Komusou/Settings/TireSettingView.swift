@@ -106,17 +106,15 @@ struct TireSettingView_Previews: PreviewProvider {
 enum TireSize: RawRepresentable {
     static let significantDigits = 4
 
-    init?(rawValue: String) {
-        guard let d = Int(rawValue) else { return nil }
-
-        if let standardTireSize = StandardTireSize(rawValue: d) {
+    init?(rawValue: Int) {
+        if let standardTireSize = StandardTireSize(rawValue: rawValue) {
             self = .standard(standardTireSize)
         } else {
-            self = .custom(d)
+            self = .custom(rawValue)
         }
     }
 
-    var rawValue: String { "\(circumference)" }
+    var rawValue: Int { circumference }
 
     case standard(StandardTireSize)
     case custom(Int)
