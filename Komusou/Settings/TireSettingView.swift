@@ -61,7 +61,7 @@ struct TireSettingView: View {
                                 isCustomTireSizeStringFieldFocused = true
                             } label: {
                                 Image(systemName: "multiply.circle.fill")
-                                    .foregroundColor(.init(UIColor.systemGray3))
+                                    .foregroundColor(Color(UIColor.systemGray3))
                             }
                         }
                     }

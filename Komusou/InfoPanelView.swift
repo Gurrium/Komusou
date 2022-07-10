@@ -33,9 +33,9 @@ struct InfoPanelView: View {
             Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]")
         }
         .foregroundColor(.white)
+        .background(.gray)
         .font(.headline)
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
-        .background(.gray)
     }
 }
