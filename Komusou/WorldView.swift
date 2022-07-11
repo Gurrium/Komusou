@@ -19,7 +19,7 @@ struct WorldView: UIViewRepresentable {
     }
 
     func makeUIView(context _: Context) -> _WorldView {
-        let worldView = UINib(nibName: "WorldView", bundle: nil).instantiate(withOwner: nil).first as! _WorldView
+        let worldView = _WorldView()
         worldView.setupViews()
 
         return worldView
@@ -35,35 +35,34 @@ final class _WorldView: UIView {
     private static let moveKey = "moveAction"
     private static let rotateKey = "rotateAction"
 
-    @IBOutlet var scnView: SCNView!
-
-    private var box: SCNNode = {
-        let box = SCNNode()
-        box.geometry = SCNBox(width: 5, height: 2, length: 2, chamferRadius: 0)
-        box.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
-
-        return box
-    }()
-    private var cancellables = Set<AnyCancellable>()
-
-    let boxBase = SCNNode()
+    private let scnView = SCNView(frame: .zero)
+    private let boxOrigin = SCNNode()
 
     func setupViews() {
+        scnView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(scnView)
+        NSLayoutConstraint.activate([
+            scnView.topAnchor.constraint(equalTo: topAnchor),
+            scnView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scnView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scnView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+
         setupScnView()
     }
 
     func didChangeSpeed(_ speed: Double) {
-        boxBase.removeAction(forKey: Self.moveKey)
-        boxBase.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: Self.moveKey)
+        boxOrigin.removeAction(forKey: Self.moveKey)
+        boxOrigin.runAction(.repeatForever(.moveBy(x: speed, y: 0, z: 0, duration: 1)), forKey: Self.moveKey)
     }
 
     func didChangeCadence(_ cadence: Int) {
-        boxBase.removeAction(forKey: Self.rotateKey)
-        boxBase.runAction(.repeatForever(.rotateBy(x: Double(cadence), y: 0, z: 0, duration: 1)), forKey: Self.rotateKey)
+        boxOrigin.removeAction(forKey: Self.rotateKey)
+        boxOrigin.runAction(.repeatForever(.rotateBy(x: Double(cadence), y: 0, z: 0, duration: 1)), forKey: Self.rotateKey)
     }
 
     private func setupScnView() {
-        let scene = scnView.scene!
+        let scene = SCNScene(named: "art.scnassets/world.scn")!
 
         let plane = SCNNode()
         plane.geometry = SCNFloor()
@@ -73,29 +72,33 @@ final class _WorldView: UIView {
         plane.geometry?.firstMaterial?.diffuse.wrapT = .repeat
         scene.rootNode.addChildNode(plane)
 
-        scene.rootNode.addChildNode(boxBase)
-        boxBase.addChildNode(box)
-        boxBase.runAction(.moveBy(x: 0, y: 3, z: 0, duration: 0))
+        let box = SCNNode()
+        box.geometry = SCNBox(width: 5, height: 2, length: 2, chamferRadius: 0)
+        box.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+        boxOrigin.addChildNode(box)
+        boxOrigin.runAction(.moveBy(x: 0, y: 3, z: 0, duration: 0))
 
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        boxBase.addChildNode(cameraNode)
+        boxOrigin.addChildNode(cameraNode)
         cameraNode.runAction(.group([
             .moveBy(x: -20, y: 20, z: 0, duration: 0),
             .rotateBy(x: 0, y: -.pi / 2, z: -.pi / 6, duration: 0),
         ]))
 
+        scene.rootNode.addChildNode(boxOrigin)
+
         let ambientLight = SCNLight()
         ambientLight.type = .ambient
         ambientLight.intensity = 100
-        scnView.scene?.rootNode.light = ambientLight
+        scene.rootNode.light = ambientLight
 
         let directionalLight = SCNLight()
         directionalLight.type = .directional
         directionalLight.intensity = 800
         let directionalLightNode = SCNNode()
         directionalLightNode.light = directionalLight
-        scnView.scene?.rootNode.addChildNode(directionalLightNode)
+        scene.rootNode.addChildNode(directionalLightNode)
         directionalLightNode.runAction(.group([
             .moveBy(x: -100, y: 100, z: 0, duration: 0),
             .rotateBy(x: 0, y: -.pi / 4, z: -.pi / 4, duration: 0),
