@@ -32,10 +32,16 @@ struct InfoPanelView: View {
             Text("\(Self.speedFormatter.string(from: .init(value: speed))!)[km/h]")
             Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]")
         }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
         .foregroundColor(.white)
         .background(.gray)
         .font(.headline)
-        .padding(.vertical, 4)
-        .padding(.horizontal, 8)
+    }
+}
+
+struct InfoPanelView_Preview: PreviewProvider {
+    static var previews: some View {
+        InfoPanelView(speed: 60, cadence: 90)
     }
 }
