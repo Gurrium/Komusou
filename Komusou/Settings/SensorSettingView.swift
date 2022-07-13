@@ -6,7 +6,6 @@
 //
 
 import Combine
-import CoreBluetooth
 import SwiftUI
 
 struct SensorSettingView: View {
@@ -19,7 +18,6 @@ struct SensorSettingView: View {
     @StateObject
     private var state = ViewState()
 
-    // TODO: 実装する
     private class ViewState: ObservableObject {
         @Published
         var isSpeedSensorSheetPresented = false
@@ -43,7 +41,6 @@ struct SensorSettingView: View {
         }
 
         func connectToCadenceSensor(uuid: UUID) {
-            // TODO: 接続が完了する前(cancelされたとき？)にdisconnectする必要がありそう
             BluetoothManager.shared().connectToCadenceSensor(uuid: uuid).sink { [unowned self] result in
                 switch result {
                 case .failure:

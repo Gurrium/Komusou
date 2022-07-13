@@ -5,7 +5,6 @@
 //  Created by gurrium on 2022/03/09.
 //
 
-import Combine
 import SwiftUI
 
 struct TireSettingView: View {

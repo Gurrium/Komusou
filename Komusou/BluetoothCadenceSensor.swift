@@ -6,7 +6,6 @@
 //
 
 import Combine
-import CoreBluetooth
 
 final class BluetoothCadenceSensor: CadenceSensor {
     private(set) var cadence: Published<Int?>.Publisher!
