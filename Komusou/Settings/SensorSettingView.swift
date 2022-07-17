@@ -13,8 +13,6 @@ struct SensorSettingView: View {
     private var connectedSpeedSensor: Peripheral?
     @State
     private var connectedCadenceSensor: Peripheral?
-    @State
-    private var isBluetoothEnabled = true
     @StateObject
     private var state = ViewState()
 
@@ -56,9 +54,9 @@ struct SensorSettingView: View {
     var body: some View {
         List {
             SensorRow(
-                isSheetPresented: $state.isSpeedSensorSheetPresented,
                 sensorType: "スピードセンサー",
-                sensorName: connectedSpeedSensor?.name ?? "未接続"
+                sensorName: connectedSpeedSensor?.name ?? "未接続",
+                isSheetPresented: $state.isSpeedSensorSheetPresented
             ) {
                 SensorSelectingView(
                     isSheetPresented: $state.isSpeedSensorSheetPresented,
@@ -67,9 +65,9 @@ struct SensorSettingView: View {
                 )
             }
             SensorRow(
-                isSheetPresented: $state.isCadenceSensorSheetPresented,
                 sensorType: "ケイデンスセンサー",
-                sensorName: connectedCadenceSensor?.name ?? "未接続"
+                sensorName: connectedCadenceSensor?.name ?? "未接続",
+                isSheetPresented: $state.isCadenceSensorSheetPresented
             ) {
                 SensorSelectingView(
                     isSheetPresented: $state.isCadenceSensorSheetPresented,
@@ -79,7 +77,6 @@ struct SensorSettingView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .alertForDisabledBluetooth(isBluetoothDisabled: .constant(!isBluetoothEnabled))
         .alert("接続に失敗しました", isPresented: $state.didError) {}
         .onReceive(BluetoothManager.shared().$connectedSpeedSensor) { speedSensor in
             self.connectedSpeedSensor = speedSensor
@@ -87,18 +84,23 @@ struct SensorSettingView: View {
         .onReceive(BluetoothManager.shared().$connectedCadenceSensor) { cadenceSensor in
             self.connectedCadenceSensor = cadenceSensor
         }
-        .onReceive(BluetoothManager.shared().$isBluetoothEnabled) { isBluetoothEnabled in
-            self.isBluetoothEnabled = isBluetoothEnabled
-        }
     }
 
     private struct SensorRow<Content: View>: View {
-        @Binding
-        var isSheetPresented: Bool
         let sensorType: String
         let sensorName: String
         @ViewBuilder
         let sheetContent: () -> Content
+
+        @Binding
+        var isSheetPresented: Bool
+
+        init(sensorType: String, sensorName: String, isSheetPresented: Binding<Bool>, sheetContent: @escaping () -> Content) {
+            self.sensorType = sensorType
+            self.sensorName = sensorName
+            _isSheetPresented = isSheetPresented
+            self.sheetContent = sheetContent
+        }
 
         var body: some View {
             Button {
@@ -122,8 +124,8 @@ struct SensorSelectingView: View {
     private var sensorNames = [UUID: String]()
     @Binding
     private var isSheetPresented: Bool
-    private var didSelectSensor: (UUID) -> Void
     private var connectedSensor: Peripheral?
+    private var didSelectSensor: (UUID) -> Void
 
     init(isSheetPresented: Binding<Bool>, connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
         _isSheetPresented = isSheetPresented

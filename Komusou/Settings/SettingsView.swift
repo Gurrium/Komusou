@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage(UserDefaultsKey.tireSize) var tireSize: TireSize = .standard(.iso25_622)
+    @AppStorage(UserDefaultsKey.tireSize)
+    var tireSize: TireSize = .standard(.iso25_622)
 
     var body: some View {
         NavigationView {
