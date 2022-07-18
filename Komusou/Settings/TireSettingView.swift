@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct TireSettingView: View {
-    @Binding var tireSize: TireSize
-    @State var isTireCustomSize: Bool
-    @State var customTireSizeString: String
-    @FocusState var isCustomTireSizeStringFieldFocused: Bool
+    @Binding
+    private var tireSize: TireSize
+    @State
+    private var isTireCustomSize: Bool
+    @State
+    private var customTireSizeString: String
+    @FocusState
+    private var isCustomTireSizeStringFieldFocused: Bool
 
     init(tireSize: Binding<TireSize>) {
         _tireSize = tireSize
@@ -30,7 +34,9 @@ struct TireSettingView: View {
             Section {
                 Toggle("任意の値を使う", isOn: $isTireCustomSize)
                     .onChange(of: isTireCustomSize) { isTireCustomSize in
-                        if !isTireCustomSize {
+                        if isTireCustomSize {
+                            isCustomTireSizeStringFieldFocused = true
+                        } else {
                             tireSize = .standard(.iso23_622)
                             customTireSizeString = ""
                         }
