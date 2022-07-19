@@ -29,8 +29,8 @@ struct InfoPanelView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("\(Self.speedFormatter.string(from: .init(value: speed))!)[km/h]")
-            Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!)[rpm]")
+            Text("\(Self.speedFormatter.string(from: .init(value: speed))!) [km/h]")
+            Text("\(Self.cadenceFormatter.string(from: .init(value: cadence))!) [rpm]")
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
