@@ -59,7 +59,6 @@ struct SensorSettingView: View {
                 isSheetPresented: $state.isSpeedSensorSheetPresented
             ) {
                 SensorSelectingView(
-                    isSheetPresented: $state.isSpeedSensorSheetPresented,
                     connectedSensor: BluetoothManager.shared().connectedSpeedSensor,
                     didSelectSensor: state.connectToSpeedSensor
                 )
@@ -70,7 +69,6 @@ struct SensorSettingView: View {
                 isSheetPresented: $state.isCadenceSensorSheetPresented
             ) {
                 SensorSelectingView(
-                    isSheetPresented: $state.isCadenceSensorSheetPresented,
                     connectedSensor: BluetoothManager.shared().connectedCadenceSensor,
                     didSelectSensor: state.connectToCadenceSensor
                 )
@@ -122,13 +120,10 @@ struct SensorSettingView: View {
 struct SensorSelectingView: View {
     @State
     private var sensorNames = [UUID: String]()
-    @Binding
-    private var isSheetPresented: Bool
     private var connectedSensor: Peripheral?
     private var didSelectSensor: (UUID) -> Void
 
-    init(isSheetPresented: Binding<Bool>, connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
-        _isSheetPresented = isSheetPresented
+    init(connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
         self.connectedSensor = connectedSensor
         self.didSelectSensor = didSelectSensor
     }
@@ -184,7 +179,6 @@ struct SensorSelectingView: View {
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSelectingView(
-            isSheetPresented: .constant(true),
             connectedSensor: nil,
             didSelectSensor: { _ in }
         )
