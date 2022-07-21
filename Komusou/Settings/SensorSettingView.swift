@@ -9,10 +9,6 @@ import Combine
 import SwiftUI
 
 struct SensorSettingView: View {
-    @State
-    private var connectedSpeedSensor: Peripheral?
-    @State
-    private var connectedCadenceSensor: Peripheral?
     @StateObject
     private var state = ViewState()
 
@@ -24,7 +20,23 @@ struct SensorSettingView: View {
         @Published
         var didError = false
 
+        @Published
+        private(set) var connectedSpeedSensor: Peripheral?
+        @Published
+        private(set) var connectedCadenceSensor: Peripheral?
+
         private var cancellables = Set<AnyCancellable>()
+
+        init() {
+            BluetoothManager.shared().$connectedSpeedSensor.sink {
+                self.connectedSpeedSensor = $0
+            }
+            .store(in: &cancellables)
+            BluetoothManager.shared().$connectedCadenceSensor.sink {
+                self.connectedCadenceSensor = $0
+            }
+            .store(in: &cancellables)
+        }
 
         func connectToSpeedSensor(uuid: UUID) {
             BluetoothManager.shared().connectToSpeedSensor(uuid: uuid).sink { [unowned self] result in
@@ -55,7 +67,7 @@ struct SensorSettingView: View {
         List {
             SensorRow(
                 sensorType: "スピードセンサー",
-                sensorName: connectedSpeedSensor?.name ?? "未接続",
+                sensorName: state.connectedSpeedSensor?.name ?? "未接続",
                 isSheetPresented: $state.isSpeedSensorSheetPresented
             ) {
                 SensorSelectingView(
@@ -65,7 +77,7 @@ struct SensorSettingView: View {
             }
             SensorRow(
                 sensorType: "ケイデンスセンサー",
-                sensorName: connectedCadenceSensor?.name ?? "未接続",
+                sensorName: state.connectedCadenceSensor?.name ?? "未接続",
                 isSheetPresented: $state.isCadenceSensorSheetPresented
             ) {
                 SensorSelectingView(
@@ -76,12 +88,6 @@ struct SensorSettingView: View {
         }
         .listStyle(.insetGrouped)
         .alert("接続に失敗しました", isPresented: $state.didError) {}
-        .onReceive(BluetoothManager.shared().$connectedSpeedSensor) { speedSensor in
-            self.connectedSpeedSensor = speedSensor
-        }
-        .onReceive(BluetoothManager.shared().$connectedCadenceSensor) { cadenceSensor in
-            self.connectedCadenceSensor = cadenceSensor
-        }
     }
 
     private struct SensorRow<Content: View>: View {
