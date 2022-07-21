@@ -28,12 +28,12 @@ struct SensorSettingView: View {
         private var cancellables = Set<AnyCancellable>()
 
         init() {
-            BluetoothManager.shared().$connectedSpeedSensor.sink {
-                self.connectedSpeedSensor = $0
+            BluetoothManager.shared().$connectedSpeedSensor.sink { [weak self] in
+                self?.connectedSpeedSensor = $0
             }
             .store(in: &cancellables)
-            BluetoothManager.shared().$connectedCadenceSensor.sink {
-                self.connectedCadenceSensor = $0
+            BluetoothManager.shared().$connectedCadenceSensor.sink { [weak self] in
+                self?.connectedCadenceSensor = $0
             }
             .store(in: &cancellables)
         }
