@@ -348,14 +348,17 @@ extension BluetoothManager: PeripheralDelegate {
         guard let data = characteristic.value else { return }
 
         let value = [UInt8](data)
-        guard (value[0] & 0b0010) > 0 else { return }
 
         // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
-        if let retrieved = calculateSpeed(from: value) {
+        if (value[0] & 0b0001) > 0,
+           let retrieved = calculateSpeed(from: value)
+        {
             speedMeasurementPauseCounter = 0
 
             speed = retrieved
-        } else if let retrieved = parseCadence(from: value) {
+        } else if (value[0] & 0b0010) > 0,
+                  let retrieved = parseCadence(from: value)
+        {
             cadenceMeasurementPauseCounter = 0
 
             cadence = retrieved
@@ -368,7 +371,10 @@ extension BluetoothManager: PeripheralDelegate {
         self.peripheral(peripheral as Peripheral, didUpdateValueFor: characteristic, error: error)
     }
 
+    // TODO: 返り値の型をDoubleにしてnilの代わりに0を返すのでもいいかも
     private func calculateSpeed(from value: [UInt8]) -> Double? {
+        precondition(value[0] & 0b0001 > 0, "Wheel Revolution Data Present Flag is not set")
+
         let cumulativeWheelRevolutions = (UInt32(value[4]) << 24) + (UInt32(value[3]) << 16) + (UInt32(value[2]) << 8) + UInt32(value[1])
         let wheelEventTime = (UInt16(value[6]) << 8) + UInt16(value[5])
 

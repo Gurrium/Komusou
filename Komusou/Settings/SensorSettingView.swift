@@ -117,7 +117,7 @@ struct SensorSettingView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            .sheet(isPresented: $isSheetPresented, content: sheetContent)
+            .sheet(isPresented: $isSheetPresented, content: sheetContent) // TODO: シートに何のセンサーを設定中華表示する
             .tint(.primary)
         }
     }
