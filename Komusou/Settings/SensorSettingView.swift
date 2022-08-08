@@ -71,6 +71,7 @@ struct SensorSettingView: View {
                 isSheetPresented: $state.isSpeedSensorSheetPresented
             ) {
                 SensorSelectingView(
+                    label: "スピードセンサー",
                     connectedSensor: BluetoothManager.shared().connectedSpeedSensor,
                     didSelectSensor: state.connectToSpeedSensor
                 )
@@ -81,6 +82,7 @@ struct SensorSettingView: View {
                 isSheetPresented: $state.isCadenceSensorSheetPresented
             ) {
                 SensorSelectingView(
+                    label: "ケイデンスセンサー",
                     connectedSensor: BluetoothManager.shared().connectedCadenceSensor,
                     didSelectSensor: state.connectToCadenceSensor
                 )
@@ -117,19 +119,22 @@ struct SensorSettingView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            .sheet(isPresented: $isSheetPresented, content: sheetContent) // TODO: シートに何のセンサーを設定中華表示する
+            .sheet(isPresented: $isSheetPresented, content: sheetContent)
             .tint(.primary)
         }
     }
 }
 
 struct SensorSelectingView: View {
-    @State
-    private var sensorNames = [UUID: String]()
+    private let label: String
+
     private var connectedSensor: Peripheral?
     private var didSelectSensor: (UUID) -> Void
+    @State
+    private var sensorNames = [UUID: String]()
 
-    init(connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
+    init(label: String, connectedSensor: Peripheral?, didSelectSensor: @escaping (UUID) -> Void) {
+        self.label = label
         self.connectedSensor = connectedSensor
         self.didSelectSensor = didSelectSensor
     }
@@ -168,7 +173,7 @@ struct SensorSelectingView: View {
                 }
             } header: {
                 HStack(spacing: 8) {
-                    Text("センサー")
+                    Text(label)
                     ProgressView()
                 }
             }
@@ -185,6 +190,7 @@ struct SensorSelectingView: View {
 struct SensorSettingView_Previews: PreviewProvider {
     static var previews: some View {
         SensorSelectingView(
+            label: "",
             connectedSensor: nil,
             didSelectSensor: { _ in }
         )
