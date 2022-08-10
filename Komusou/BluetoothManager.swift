@@ -350,16 +350,18 @@ extension BluetoothManager: PeripheralDelegate {
         let value = [UInt8](data)
 
         // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
-        if (value[0] & 0b0001) > 0
+        if (value[0] & 0b0001) > 0,
+           let retrieved = parseSpeed(from: value)
         {
             speedMeasurementPauseCounter = 0
 
-            speed = retrieveSpeed(from: value)
-        } else if (value[0] & 0b0010) > 0
+            speed = retrieved
+        } else if (value[0] & 0b0010) > 0,
+                  let retrieved = parseCadence(from: value)
         {
             cadenceMeasurementPauseCounter = 0
 
-            cadence = retrieveCadence(from: value)
+            cadence = retrieved
         } else {
             speedMeasurementPauseCounter += 1
         }
@@ -369,7 +371,7 @@ extension BluetoothManager: PeripheralDelegate {
         self.peripheral(peripheral as Peripheral, didUpdateValueFor: characteristic, error: error)
     }
 
-    private func retrieveSpeed(from value: [UInt8]) -> Double {
+    private func parseSpeed(from value: [UInt8]) -> Double? {
         precondition(value[0] & 0b0001 > 0, "Wheel Revolution Data Present Flag is not set")
 
         let cumulativeWheelRevolutions = (UInt32(value[4]) << 24) + (UInt32(value[3]) << 16) + (UInt32(value[2]) << 8) + UInt32(value[1])
@@ -381,7 +383,7 @@ extension BluetoothManager: PeripheralDelegate {
         }
 
         guard let previousCumulativeWheelRevolutions = previousCumulativeWheelRevolutions,
-              let previousWheelEventTime = previousWheelEventTime else { return 0 }
+              let previousWheelEventTime = previousWheelEventTime else { return nil }
 
         let duration: UInt16
 
@@ -391,14 +393,14 @@ extension BluetoothManager: PeripheralDelegate {
             duration = wheelEventTime - previousWheelEventTime
         }
 
-        guard duration > 0 else { return 0 }
+        guard duration > 0 else { return nil }
 
         let revolutionsPerSec = Double(cumulativeWheelRevolutions - previousCumulativeWheelRevolutions) / (Double(duration) / 1024)
 
         return revolutionsPerSec * Double(tireSize.circumference) * 3600 / 1_000_000 // [km/h]
     }
 
-    private func retrieveCadence(from value: [UInt8]) -> Int {
+    private func parseCadence(from value: [UInt8]) -> Int? {
         precondition(value[0] & 0b0010 > 0, "Crank Revolution Data Present Flag is not set")
 
         let cumulativeCrankRevolutions = (UInt16(value[2]) << 8) + UInt16(value[1])
@@ -410,7 +412,7 @@ extension BluetoothManager: PeripheralDelegate {
         }
 
         guard let previousCumulativeCrankRevolutions = previousCumulativeCrankRevolutions,
-              let previousCrankEventTime = previousCrankEventTime else { return 0 }
+              let previousCrankEventTime = previousCrankEventTime else { return nil }
 
         let duration: UInt16
 
@@ -420,7 +422,7 @@ extension BluetoothManager: PeripheralDelegate {
             duration = crankEventTime - previousCrankEventTime
         }
 
-        guard duration > 0 else { return 0 }
+        guard duration > 0 else { return nil }
 
         return Int((Double(cumulativeCrankRevolutions - previousCumulativeCrankRevolutions) * 60) / (Double(duration) / 1024))
     }
