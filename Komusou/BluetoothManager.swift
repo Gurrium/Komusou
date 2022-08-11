@@ -350,17 +350,11 @@ extension BluetoothManager: PeripheralDelegate {
         let value = [UInt8](data)
 
         // ref: https://www.bluetooth.com/specifications/specs/gatt-specification-supplement-5/
-        if (value[0] & 0b0001) > 0,
-           let retrieved = parseSpeed(from: value)
-        {
+        if let retrieved = parseSpeed(from: value) {
             speedMeasurementPauseCounter = 0
-
             speed = retrieved
-        } else if (value[0] & 0b0010) > 0,
-                  let retrieved = parseCadence(from: value)
-        {
+        } else if let retrieved = parseCadence(from: value) {
             cadenceMeasurementPauseCounter = 0
-
             cadence = retrieved
         } else {
             speedMeasurementPauseCounter += 1
@@ -372,7 +366,7 @@ extension BluetoothManager: PeripheralDelegate {
     }
 
     private func parseSpeed(from value: [UInt8]) -> Double? {
-        precondition(value[0] & 0b0001 > 0, "Wheel Revolution Data Present Flag is not set")
+        guard value[0] & 0b0001 > 0 else { return nil }
 
         let cumulativeWheelRevolutions = (UInt32(value[4]) << 24) + (UInt32(value[3]) << 16) + (UInt32(value[2]) << 8) + UInt32(value[1])
         let wheelEventTime = (UInt16(value[6]) << 8) + UInt16(value[5])
@@ -401,7 +395,7 @@ extension BluetoothManager: PeripheralDelegate {
     }
 
     private func parseCadence(from value: [UInt8]) -> Int? {
-        precondition(value[0] & 0b0010 > 0, "Crank Revolution Data Present Flag is not set")
+        guard value[0] & 0b0010 > 0 else { return nil }
 
         let cumulativeCrankRevolutions = (UInt16(value[2]) << 8) + UInt16(value[1])
         let crankEventTime = (UInt16(value[4]) << 8) + UInt16(value[3])
