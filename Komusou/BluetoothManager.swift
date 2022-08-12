@@ -353,11 +353,15 @@ extension BluetoothManager: PeripheralDelegate {
         if let retrieved = parseSpeed(from: value) {
             speedMeasurementPauseCounter = 0
             speed = retrieved
-        } else if let retrieved = parseCadence(from: value) {
+        } else {
+            speedMeasurementPauseCounter += 1
+        }
+
+        if let retrieved = parseCadence(from: value) {
             cadenceMeasurementPauseCounter = 0
             cadence = retrieved
         } else {
-            speedMeasurementPauseCounter += 1
+            cadenceMeasurementPauseCounter += 1
         }
     }
 
